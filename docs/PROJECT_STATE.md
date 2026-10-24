@@ -7,7 +7,7 @@ içinde** bu dosya güncellenir. Ayrıntılı çalışma kuralları `AGENTS.md` 
 ## Son güncelleme
 
 - **Tarih:** 24 Ekim 2026
-- **Son doğrulanan özellik sürümü:** Oyun içi masa düzeni — yerel doğrulama
+- **Son doğrulanan özellik sürümü:** `e7c6f5b` — Oyun içi masa düzeni
 - **Bu güncellemenin konusu:** Oyun ekranında masa düzeni, oyuncu koltukları ve görsel yenileme
 - **Durum:** Aktif geliştirme; canlı sürüm GitHub Pages'te yayında
 - **Canlı adres:** https://duperious.github.io/gizli-padisah/
@@ -183,8 +183,10 @@ sürümü için:
   yatay taşma yok
 - Önceki sürüm duman testleri — solo host + 4 bot, otomatik aday gösterme/oylama,
   yasama zinciri, host yenileme ve devam etme
-- GitHub Actions — bu değişiklik için push sonrası doğrulanacak
-- Canlı site — bu değişiklik yayınlandıktan sonra doğrulanacak
+- GitHub Actions — test, build ve GitHub Pages dağıtımı başarılı (run
+  `40092468239`)
+- Canlı site — Playwright ile masa, 5 oyuncu koltuğu, iki ferman rayı, deste/atık
+  göstergeleri ve Divan Defteri paneli doğrulandı; yatay taşma yok
 
 Dokümantasyon kontrolü bu sürümle birlikte eklendi:
 
@@ -258,6 +260,8 @@ durdurur.
   kartı bileşen stilleri eklendi; mobilde 5 ve 10 oyuncu düzeni doğrulandı.
 - Ana sayfa ve lobi korundu. Motor, bot kararları, ağ protokolü ve gizli rol
   projeksiyonu değiştirilmedi.
+- Değişiklik GitHub Actions ile yayınlandı ve canlı oyun ekranı Playwright ile
+  doğrulandı.
 
 ### 24 Ekim 2026 — Dokümantasyon sistemi
 
