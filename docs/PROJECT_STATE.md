@@ -7,7 +7,7 @@ içinde** bu dosya güncellenir. Ayrıntılı çalışma kuralları `AGENTS.md` 
 ## Son güncelleme
 
 - **Tarih:** 24 Ekim 2026
-- **Son doğrulanan özellik sürümü:** yerel çalışma — merkezî rol ve oy sahneleri
+- **Son doğrulanan özellik sürümü:** `843e09c` — merkezî rol ve oy sahneleri
 - **Bu güncellemenin konusu:** secret-hitler.online referanslı merkezî rol
   açılışı, aksiyon modalları, iki adımlı Evet/Hayır oylaması ve oy damgaları
 - **Durum:** Yerel doğrulama tamamlandı; commit ve dağıtım bekliyor
