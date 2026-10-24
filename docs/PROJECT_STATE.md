@@ -7,11 +7,11 @@ içinde** bu dosya güncellenir. Ayrıntılı çalışma kuralları `AGENTS.md` 
 ## Son güncelleme
 
 - **Tarih:** 24 Ekim 2026
-- **Son doğrulanan özellik sürümü:** Savaş Konseyi yeniden teması (bu commit)
+- **Son doğrulanan özellik sürümü:** `99a0375` — Savaş Konseyi yeniden teması
 - **Bu güncellemenin konusu:** Gizli Padişah kimliğinin Savaş Konseyi kimliğine
   dönüştürülmesi, rollerin ve tüm ürün dilinin yeniden adlandırılması
-- **Durum:** Yerel doğrulama tamamlandı; GitHub Pages dağıtımı bu commit ile
-  yapılacak
+- **Durum:** Yerel doğrulama, GitHub Actions dağıtımı ve canlı duman testi
+  tamamlandı
 - **Canlı adres:** https://duperious.github.io/gizli-padisah/
 
 ## Ürün özeti
@@ -179,7 +179,7 @@ yeniden başlar.
 
 ## Doğrulama durumu
 
-Savaş Konseyi yeniden teması sonrası yerel doğrulama:
+Savaş Konseyi yeniden teması sonrası doğrulama:
 
 - `npx tsc --noEmit` — geçti
 - `npm test` — 61 test geçti
@@ -188,9 +188,11 @@ Savaş Konseyi yeniden teması sonrası yerel doğrulama:
 - `npm run icons` — PWA ve favicon PNG'leri `SK` kaynağından yeniden üretildi
 - Playwright duman testi — ana sayfa, lobi, oyun başlangıcı, bot akışı ve
   masa düzeni; 5 ve 10 oyuncu, mobil/masaüstü genişlikleri
-- GitHub Actions — bu commit sonrası test, build ve GitHub Pages dağıtımı (bekliyor)
-- Canlı site — dağıtım sonrası ana sayfa, bot ekleme, oyun başlatma ve mavi
-  Barışçıl / kırmızı Saldırgan görünümü
+- GitHub Actions — run `40108305859` başarılı: doküman kontrolü, 61 test, üretim
+  derlemesi ve GitHub Pages dağıtımı
+- Canlı site — 24 Ekim 2026'da ana sayfa, lobi, 4 bot ekleme, oyun başlatma,
+  oylama, masa düzeni ve mavi Barışçıl / kırmızı Saldırgan görünümü doğrulandı;
+  390 ve 1440 px genişlikte yatay taşma ve sayfa hatası yok
 
 Önceki sürüm doğrulaması (masa düzeni, `e7c6f5b`):
 
@@ -288,8 +290,8 @@ durdurur.
   kaydırılmış olsa bile oyun koltuklardan başlar.
 - Oyun kuralları, bot kararları, ağ protokolü ve gizli rol projeksiyonu
   değiştirilmedi; yalnızca kimlik, metin ve görsel tema yenilendi.
-- Doğrulama: `tsc`, 61 test, üretim derlemesi ve doküman kontrolü geçti; tarayıcı
-  duman testi yapıldı. Canlı dağıtım kontrolü bu commit sonrası yapılacak.
+- Doğrulama: `tsc`, 61 test, üretim derlemesi ve doküman kontrolü geçti; GitHub
+  Actions dağıtımı ve canlı tarayıcı duman testi de tamamlandı.
 
 ### 24 Ekim 2026 — Oyun arayüzü masa düzeni
 
