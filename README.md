@@ -12,6 +12,8 @@ Saraylılar kazanır.
 ## Neler var?
 
 - Oda kodu veya tek tık davet linkiyle katılım
+- Masa düzenli oyun ekranı: oyuncu koltukları, büyük Ferman/Islahat tahtası,
+  deste/atık göstergeleri ve Divan Defteri paneli
 - 5–10 oyuncu için gizli rol dağıtımı (Islahatçı, Saraylı, Padişah)
 - Eksik kadroyu botlarla tamamlama: tek başına 4 botla oynayabilir veya hedef
   oyuncu sayısını 5–10 arasında seçebilirsin

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import clsx from "clsx";
 import {
   AlertTriangle,
+  Bot,
   Check,
   Clock,
   Crown,
@@ -14,6 +15,7 @@ import {
   ScrollText,
   Shield,
   Skull,
+  Users,
   Vote,
   X,
 } from "lucide-react";
@@ -42,6 +44,7 @@ import {
   EyeButton,
   LogPanel,
   Modal,
+  Ornament,
   PhaseIcon,
   PlayerCard,
   PolicyCard,
@@ -668,33 +671,56 @@ export function Game({
   };
 
   return (
-    <div className="min-h-dvh lg:pb-4">
-      <header className="sticky top-0 z-30 border-b border-gold/10 bg-ink/90 backdrop-blur-md">
-        <div className="mx-auto flex w-full max-w-6xl items-center gap-2 px-2.5 py-2 sm:px-5">
+    <div className="game-shell relative min-h-dvh overflow-x-clip lg:pb-4">
+      <div
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+        aria-hidden="true"
+      >
+        <div className="absolute -right-52 -top-24 text-gold/[0.045]">
+          <Ornament className="h-[620px] w-[620px]" />
+        </div>
+        <div className="absolute -bottom-64 -left-52 text-gold/[0.03]">
+          <Ornament className="h-[540px] w-[540px]" />
+        </div>
+      </div>
+
+      <header className="game-topbar sticky top-0 z-30">
+        <div className="mx-auto flex w-full max-w-[1500px] items-center gap-2 px-2.5 py-2 sm:px-4">
           <Brand compact />
+          <div className="hidden items-center gap-2 md:flex">
+            <span className="phase-chip">
+              <PhaseIcon phase={state.phase} />
+              {PHASE_LABEL[state.phase]}
+            </span>
+            <span className="text-[10px] uppercase tracking-[0.16em] text-muted">
+              Tur {state.round}
+            </span>
+            <span className="font-mono text-[10px] tracking-[0.2em] text-muted/80">
+              {code}
+            </span>
+          </div>
           <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
-            <div className="hidden sm:block">
-              <StatusPill status={status} isHost={isHost} />
-            </div>
             <span
               className={clsx(
-                "inline-flex items-center gap-1.5 rounded-lg border px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider",
-                urgent
-                  ? "border-fascist-2/50 bg-fascist/15 text-fascist-2"
-                  : "border-gold/20 bg-ink/60 text-parchment-2",
+                "timer-chip",
+                urgent && "timer-chip-urgent",
               )}
             >
               <Clock className="h-3.5 w-3.5" />
               {formatSeconds(remaining)}
             </span>
+            <div className="hidden sm:block">
+              <StatusPill status={status} isHost={isHost} />
+            </div>
             <EyeButton onClick={() => setRoleOpen(true)} />
             <button
               type="button"
               onClick={() => setRulesOpen(true)}
-              className="btn-ghost hidden px-2 py-2 text-xs sm:inline-flex"
+              className="btn-ghost px-2 py-2 text-xs"
               aria-label="Kurallar"
             >
               <ScrollText className="h-4 w-4 text-gold" />
+              <span className="hidden xl:inline">Kurallar</span>
             </button>
             <button
               type="button"
@@ -706,7 +732,7 @@ export function Game({
             </button>
           </div>
         </div>
-        <div className="mx-auto flex max-w-6xl items-center gap-2 border-t border-gold/[0.07] px-2.5 py-1.5 sm:px-5">
+        <div className="mx-auto flex max-w-[1500px] items-center gap-2 border-t border-gold/[0.08] px-3 py-1.5 md:hidden">
           <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-gold-2">
             <PhaseIcon phase={state.phase} />
             {PHASE_LABEL[state.phase]}
@@ -719,7 +745,7 @@ export function Game({
       </header>
 
       {state.phase === "ended" && !gameOverOpen && (
-        <div className="mx-auto mt-3 w-full max-w-6xl px-3 sm:px-5">
+        <div className="mx-auto mt-3 w-full max-w-[1500px] px-2.5 sm:px-4">
           <div className="flex items-center gap-2 rounded-xl border border-gold/30 bg-gold/10 px-3 py-2 text-xs">
             <Crown className="h-4 w-4 text-gold" />
             <span className="flex-1">
@@ -737,63 +763,38 @@ export function Game({
         </div>
       )}
 
-      <main className="mx-auto grid w-full max-w-6xl gap-3 px-2.5 py-3 pb-24 sm:px-5 lg:grid-cols-[1fr_330px] lg:items-start lg:gap-4 lg:pb-3">
-        <div className="min-w-0 space-y-3">
-          <Board state={state} />
+      <main className="mx-auto grid w-full max-w-[1500px] gap-3 px-2.5 py-3 pb-24 sm:px-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-4 lg:pb-4">
+        <div className="min-w-0">
+          <section className="game-table animate-rise">
+            <PlayerRail
+              state={state}
+              you={you}
+              targetMode={targetMode}
+              targetIds={targetIds}
+              target={target}
+              onTarget={setTarget}
+            />
 
-          <div key={`${state.phase}-${state.round}`} className="animate-rise">
-            {actionPanel()}
-          </div>
+            <div className="table-seam" aria-hidden="true" />
 
-          <section className="panel p-3.5 sm:p-4">
-            <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <p className="eyebrow">Divan</p>
-                <p className="font-display text-lg font-bold">
-                  {alive.length}
-                  <span className="text-muted"> / {state.players.length} hayatta</span>
-                </p>
-              </div>
-              {targetMode && (
-                <Badge tone="gold">
-                  <Eye className="h-3 w-3" /> Hedef seç
-                </Badge>
-              )}
+            <Board state={state} />
+
+            <div className="table-seam" aria-hidden="true" />
+
+            <div key={`${state.phase}-${state.round}`} className="animate-rise">
+              {actionPanel()}
             </div>
-            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-              {state.players.map((player) => {
-                const selectable = targetMode
-                  ? targetIds.includes(player.id)
-                  : undefined;
-                return (
-                  <PlayerCard
-                    key={player.id}
-                    player={player}
-                    isYou={player.id === you.id}
-                    selectable={selectable}
-                    selected={target === player.id}
-                    onSelect={() => {
-                      if (selectable) {
-                        setTarget(player.id);
-                        if (typeof navigator !== "undefined" && "vibrate" in navigator) {
-                          navigator.vibrate?.(8);
-                        }
-                      }
-                    }}
-                    showRole={state.phase === "ended"}
-                  />
-                );
-              })}
-            </div>
-            {targetMode && (
-              <p className="mt-2 text-[10px] text-muted">
-                Yukarıdaki listeden veya bu kartlardan hedef seçebilirsin.
-              </p>
-            )}
           </section>
         </div>
 
-        <aside className="panel hidden p-3 lg:sticky lg:top-[92px] lg:flex lg:h-[calc(100dvh-108px)] lg:flex-col">
+        <aside className="chronicle-panel hidden p-3 lg:sticky lg:top-[72px] lg:flex lg:h-[calc(100dvh-88px)] lg:flex-col">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <div>
+              <p className="eyebrow">Divan Defteri</p>
+              <p className="text-[11px] text-muted">Olan biten ve sözler</p>
+            </div>
+            <ScrollText className="h-4 w-4 text-gold/60" />
+          </div>
           <div className="mb-2 grid grid-cols-2 gap-1 rounded-lg border border-gold/10 bg-ink/40 p-1">
             <button
               type="button"
@@ -1027,6 +1028,101 @@ export function Game({
 /* Yardımcı bileşenler                                                 */
 /* ------------------------------------------------------------------ */
 
+function PlayerRail({
+  state,
+  you,
+  targetMode,
+  targetIds,
+  target,
+  onTarget,
+}: {
+  state: ClientState;
+  you: ClientState["you"];
+  targetMode: TargetKind | null;
+  targetIds: string[];
+  target: string | null;
+  onTarget: (id: string) => void;
+}) {
+  const aliveCount = state.players.filter((player) => player.alive).length;
+  const bots = state.players.filter((player) => player.isBot).length;
+  const votedCount = state.votes.voted.length;
+  const reveal = state.votes.revealed;
+  const seatWidth =
+    state.players.length <= 5
+      ? "w-[calc(33.333%-0.4rem)] max-w-[136px] sm:w-[calc(20%-0.45rem)] xl:w-[calc(20%-0.45rem)]"
+      : "w-[calc(25%-0.35rem)] sm:w-[calc(20%-0.45rem)] xl:w-[calc(10%-0.45rem)]";
+
+  return (
+    <div>
+      <div className="mb-2 flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <p className="eyebrow">Divan Üyeleri</p>
+          <p className="font-display text-lg font-bold leading-none">
+            {aliveCount}
+            <span className="text-muted"> / {state.players.length} hayatta</span>
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center justify-end gap-1.5">
+          {targetMode && (
+            <Badge tone="gold">
+              <Eye className="h-3 w-3" /> Hedef seç
+            </Badge>
+          )}
+          {state.phase === "vote" || state.phase === "vote_result" ? (
+            <Badge tone="gold">
+              <Vote className="h-3 w-3" /> {votedCount}/{aliveCount} oy
+            </Badge>
+          ) : (
+            bots > 0 && (
+              <Badge tone="muted">
+                <Bot className="h-3 w-3" /> {bots} bot
+              </Badge>
+            )
+          )}
+          <Badge tone="muted">
+            <Users className="h-3 w-3" /> {state.players.length} üye
+          </Badge>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
+        {state.players.map((player) => {
+          const selectable = targetMode
+            ? targetIds.includes(player.id)
+            : undefined;
+          return (
+            <PlayerCard
+              key={player.id}
+              player={player}
+              isYou={player.id === you.id}
+              selectable={selectable}
+              selected={target === player.id}
+              onSelect={() => {
+                if (selectable) {
+                  onTarget(player.id);
+                  if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+                    navigator.vibrate?.(8);
+                  }
+                }
+              }}
+              showRole={state.phase === "ended"}
+              voted={state.votes.voted.includes(player.id)}
+              revealedVote={reveal ? reveal[player.id] : null}
+              className={seatWidth}
+            />
+          );
+        })}
+      </div>
+
+      {targetMode && (
+        <p className="mt-2 text-center text-[10px] text-muted">
+          Hedefi oyuncu kartlarından seçebilirsin.
+        </p>
+      )}
+    </div>
+  );
+}
+
 function ActionCard({
   title,
   eyebrow,
@@ -1043,10 +1139,10 @@ function ActionCard({
   return (
     <section
       className={clsx(
-        "panel relative overflow-hidden p-4 sm:p-5",
-        tone === "gold" && "border-gold/30",
-        tone === "liberal" && "border-liberal-2/35",
-        tone === "fascist" && "border-fascist-2/40",
+        "action-decree",
+        tone === "gold" && "action-decree-gold",
+        tone === "liberal" && "action-decree-liberal",
+        tone === "fascist" && "action-decree-fascist",
       )}
     >
       <div
@@ -1058,14 +1154,15 @@ function ActionCard({
           tone === "fascist" &&
             "bg-gradient-to-r from-transparent via-fascist-2 to-transparent",
         )}
+        aria-hidden="true"
       />
       <div className="mb-3 flex items-start justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-          <h2 className="title mt-0.5 flex items-center gap-2 text-xl">
+          <h2 className="title mt-1 flex items-center gap-2.5 text-xl sm:text-2xl">
             <span
               className={clsx(
-                "grid h-7 w-7 place-items-center rounded-full border",
+                "grid h-9 w-9 shrink-0 place-items-center rounded-full border",
                 tone === "liberal"
                   ? "border-liberal-2/40 bg-liberal/15 text-liberal-2"
                   : tone === "fascist"
@@ -1075,9 +1172,12 @@ function ActionCard({
             >
               {icon}
             </span>
-            {title}
+            <span className="min-w-0">{title}</span>
           </h2>
         </div>
+        <span className="hidden shrink-0 text-[9px] font-semibold uppercase tracking-[0.22em] text-muted/55 sm:block">
+          Divan Kararı
+        </span>
       </div>
       <div className="space-y-3">{children}</div>
     </section>

@@ -3,12 +3,15 @@ import { createPortal } from "react-dom";
 import clsx from "clsx";
 import {
   AlertTriangle,
+  Archive,
   Bot,
   Check,
   Copy,
   Crown,
   Eye,
+  Gavel,
   Landmark,
+  Layers,
   Loader2,
   MessageCircle,
   Scale,
@@ -482,134 +485,234 @@ export function CopyButton({
 /* Tahta                                                               */
 /* ------------------------------------------------------------------ */
 
-function powerShort(power: Power): string {
-  if (power === "special") return "Ferman-ı Şahane";
-  return POWER_LABEL[power];
+const POWER_GLYPH: Record<Power, typeof Eye> = {
+  investigate: Eye,
+  special: Crown,
+  peek: ScrollText,
+  execute: Gavel,
+};
+
+const POWER_SHORT: Record<Power, string> = {
+  investigate: "Teftiş",
+  special: "F.-ı Şahane",
+  peek: "İstihbarat",
+  execute: "Kalebend",
+};
+
+function DeckStack({
+  label,
+  value,
+  icon,
+  tone,
+}: {
+  label: string;
+  value: number;
+  icon: ReactNode;
+  tone: "gold" | "muted";
+}) {
+  return (
+    <div className={clsx("deck-stack", tone === "gold" ? "deck-stack-gold" : "deck-stack-muted")}>
+      <span className="deck-stack-art" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+        <span className="deck-stack-glyph">{icon}</span>
+      </span>
+      <span className="leading-tight">
+        <span className="block text-[8px] uppercase tracking-[0.18em] text-muted">{label}</span>
+        <span className="block font-display text-base font-bold text-parchment">{value}</span>
+      </span>
+    </div>
+  );
 }
 
-export function Board({ state }: { state: ClientState }) {
-  const powers = state.board.powers;
+function PolicyTrack({
+  party,
+  count,
+  total,
+  powers,
+}: {
+  party: "liberal" | "fascist";
+  count: number;
+  total: number;
+  powers?: (Power | null)[];
+}) {
+  const fascist = party === "fascist";
+  const Icon = fascist ? ScrollText : Scale;
   return (
-    <section className="panel overflow-hidden p-3.5 sm:p-4">
-      <div className="mb-2 flex items-end justify-between gap-3">
-        <div>
-          <p className="eyebrow">Saray Tahtası</p>
-          <p className="font-display text-lg font-bold leading-none">
-            {state.board.fascist}
-            <span className="text-muted"> / 6 Ferman</span>
-          </p>
+    <div
+      className={clsx(
+        "policy-track",
+        fascist ? "policy-track-fascist" : "policy-track-liberal",
+      )}
+    >
+      <div className="policy-track-head">
+        <div className="flex min-w-0 items-center gap-2">
+          <span
+            className={clsx(
+              "policy-track-icon",
+              fascist ? "text-fascist-2" : "text-liberal-2",
+            )}
+          >
+            <Icon className="h-4 w-4" strokeWidth={1.5} />
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-[9px] font-semibold uppercase tracking-[0.2em] text-parchment-2">
+              {fascist ? "Saray Fermanları" : "Islahat Fermaları"}
+            </p>
+            <p className="truncate text-[9px] text-muted">
+              {fascist ? "6 Ferman Saray'ın zaferi" : "5 Islahat Divan'ın zaferi"}
+            </p>
+          </div>
         </div>
-        <div className="flex gap-2 text-[10px] text-muted">
-          <span>Deste {state.deckCount}</span>
-          <span>·</span>
-          <span>Atık {state.discardCount}</span>
-        </div>
+        <p
+          className={clsx(
+            "font-display text-lg font-bold leading-none",
+            fascist ? "text-fascist-2" : "text-liberal-2",
+          )}
+        >
+          {count}
+          <span className="text-[11px] text-muted">/{total}</span>
+        </p>
       </div>
 
-      <div className="grid grid-cols-6 gap-1 sm:gap-1.5">
-        {Array.from({ length: 6 }).map((_, index) => {
+      <div
+        className={clsx(
+          "policy-track-grid",
+          fascist ? "grid-cols-6" : "grid-cols-5",
+        )}
+      >
+        <div className="policy-track-watermark" aria-hidden="true">
+          <Icon className="h-full w-full" strokeWidth={0.7} />
+        </div>
+        {Array.from({ length: total }).map((_, index) => {
           const slot = index + 1;
-          const filled = slot <= state.board.fascist;
-          const power = powers[slot] ?? null;
-          const winSlot = slot === 6;
+          const filled = slot <= count;
+          const final = slot === total;
+          const power = powers?.[slot] ?? null;
+          const PowerIcon = power ? POWER_GLYPH[power] : null;
           return (
             <div
               key={slot}
               title={
-                winSlot
-                  ? "Altıncı ferman Saray'ın zaferi"
+                final
+                  ? `${slot}. ${fascist ? "Ferman" : "Islahat"}: zafer`
                   : power
-                    ? `${slot}. ferman: ${POWER_LABEL[power]}`
-                    : `${slot}. ferman`
+                    ? `${slot}. Ferman: ${POWER_LABEL[power]}`
+                    : `${slot}. ${fascist ? "Ferman" : "Islahat"}`
               }
               className={clsx(
-                "relative flex h-14 flex-col items-center justify-center gap-0.5 overflow-hidden rounded-md border text-center sm:h-16",
-                filled
-                  ? "border-fascist-2/60 bg-fascist/75 text-parchment"
-                  : winSlot
-                    ? "border-gold/30 bg-wine/30 text-gold-2"
-                    : "border-gold/15 bg-ink/60 text-muted",
+                "policy-slot",
+                filled && "policy-slot-filled",
+                final && "policy-slot-final",
               )}
             >
               {filled ? (
                 <>
-                  <Crown className="h-4 w-4 text-gold-2" />
-                  <span className="text-[8px] font-semibold uppercase tracking-wider">
-                    Ferman
+                  <Icon className="h-4 w-4 opacity-80" strokeWidth={1.5} />
+                  <span className="text-[7px] font-semibold uppercase tracking-[0.12em] text-parchment/80">
+                    {fascist ? "Ferman" : "Islahat"}
                   </span>
-                </>
-              ) : winSlot ? (
-                <>
-                  <Crown className="h-4 w-4" />
-                  <span className="text-[8px] uppercase tracking-wide">Zafer</span>
                 </>
               ) : (
                 <>
-                  <span className="text-[9px] font-semibold text-gold/80">{slot}</span>
-                  {power ? (
-                    <span className="px-0.5 text-[7px] leading-[1.05] text-parchment-2/85 sm:text-[8px]">
-                      {powerShort(power)}
+                  <span className="policy-slot-number">{slot}</span>
+                  {final ? (
+                    <span className="policy-slot-power text-gold-2">
+                      <Crown className="h-3.5 w-3.5" strokeWidth={1.5} />
+                      Zafer
+                    </span>
+                  ) : power && PowerIcon ? (
+                    <span className="policy-slot-power">
+                      <PowerIcon className="h-3 w-3" strokeWidth={1.6} />
+                      {POWER_SHORT[power]}
                     </span>
                   ) : (
-                    <span className="text-[8px] text-muted/50">—</span>
+                    <span className="text-[9px] text-muted/50">—</span>
                   )}
                 </>
-              )}
-              {filled && (
-                <span className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(231,204,138,0.22),transparent_60%)]" />
               )}
             </div>
           );
         })}
       </div>
+    </div>
+  );
+}
 
-      <div className="mt-3 flex items-end justify-between gap-3">
-        <div>
-          <p className="eyebrow">Islahat Tahtası</p>
-          <p className="font-display text-lg font-bold leading-none">
-            {state.board.liberal}
-            <span className="text-muted"> / 5 Islahat</span>
-          </p>
+export function Board({ state }: { state: ClientState }) {
+  const powers = state.board.powers;
+  return (
+    <section className="policy-board" aria-label="Ferman ve Islahat tahtası">
+      <div className="policy-board-head">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className="board-seal">
+            <Landmark className="h-5 w-5" strokeWidth={1.4} />
+          </span>
+          <div className="min-w-0">
+            <p className="eyebrow">Divan Tahtası</p>
+            <h2 className="font-display text-base font-bold leading-none sm:text-xl">
+              Ferman Dengesi
+            </h2>
+          </div>
         </div>
-        <div className="flex items-center gap-1.5">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <span
-              key={index}
-              className={clsx(
-                "h-3.5 w-3.5 rounded-full border transition",
-                index < state.board.liberal
-                  ? "border-liberal-2 bg-liberal-2"
-                  : "border-gold/20 bg-ink/60",
-              )}
-            />
-          ))}
+        <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+          <DeckStack
+            label="Deste"
+            value={state.deckCount}
+            tone="gold"
+            icon={<Layers className="h-3.5 w-3.5" />}
+          />
+          <DeckStack
+            label="Atık"
+            value={state.discardCount}
+            tone="muted"
+            icon={<Archive className="h-3.5 w-3.5" />}
+          />
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-gold/10 pt-2.5">
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] uppercase tracking-[0.2em] text-muted">
+      <PolicyTrack
+        party="fascist"
+        count={state.board.fascist}
+        total={6}
+        powers={powers}
+      />
+      <PolicyTrack party="liberal" count={state.board.liberal} total={5} />
+
+      <div className="policy-board-foot">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-[9px] font-semibold uppercase tracking-[0.18em] text-muted">
             Seçim sayacı
           </span>
-          <div className="flex gap-1.5">
+          <div className="flex gap-1.5" aria-label={`Seçim sayacı ${state.board.tracker}/3`}>
             {Array.from({ length: 3 }).map((_, index) => (
               <span
                 key={index}
                 className={clsx(
-                  "h-2.5 w-2.5 rounded-full border",
+                  "h-2.5 w-2.5 rounded-full border transition",
                   index < state.board.tracker
-                    ? "border-gold bg-gold"
+                    ? "border-gold bg-gold shadow-[0_0_10px_rgba(201,162,75,0.5)]"
                     : "border-gold/25 bg-transparent",
                 )}
               />
             ))}
           </div>
+          {state.board.tracker >= 2 && (
+            <span className="text-[9px] text-gold-2">
+              Bir sonraki düşüşte üst ferman açılır
+            </span>
+          )}
         </div>
-        {state.board.vetoUnlocked && (
-          <Badge tone="gold">
-            <Shield className="h-3 w-3" /> Veto açık
-          </Badge>
-        )}
+        <div className="flex items-center gap-2">
+          {state.board.vetoUnlocked ? (
+            <Badge tone="gold">
+              <Shield className="h-3 w-3" /> Veto açık
+            </Badge>
+          ) : (
+            <span className="text-[9px] text-muted/70">Veto 5. Ferman'da açılır</span>
+          )}
+        </div>
       </div>
     </section>
   );
@@ -627,6 +730,9 @@ export function PlayerCard({
   onSelect,
   showRole,
   compact,
+  voted,
+  revealedVote,
+  className,
 }: {
   player: ClientPlayer;
   isYou: boolean;
@@ -635,23 +741,55 @@ export function PlayerCard({
   onSelect?: () => void;
   showRole?: boolean;
   compact?: boolean;
+  voted?: boolean;
+  revealedVote?: boolean | null;
+  className?: string;
 }) {
   const disabled = selectable === false;
+  const roleTone =
+    player.role === "liberal"
+      ? "player-seat-badge-liberal"
+      : player.role === "hitler"
+        ? "player-seat-badge-gold"
+        : "player-seat-badge-fascist";
+
+  const roleLabel = !player.alive
+    ? "Kalebend"
+    : showRole && player.role
+      ? ROLE_LABEL[player.role]
+      : player.isPresident
+        ? "Reis"
+        : player.isChancellor
+          ? "Vezir"
+          : player.isNominee
+            ? "Aday"
+            : !player.connected
+              ? "Kopuk"
+              : player.isBot
+                ? "Bot"
+                : isYou
+                  ? "Sen"
+                  : "Divan";
+
   return (
     <button
       type="button"
       onClick={selectable ? onSelect : undefined}
       disabled={!selectable}
+      aria-pressed={selectable ? selected : undefined}
+      title={player.name}
       className={clsx(
-        "seat text-left",
-        selectable && "seat-target animate-pulse-gold",
-        selected && "border-gold bg-gold/15",
-        disabled && "seat-dim",
-        isYou && "border-gold/40",
-        compact ? "p-2.5" : "p-3",
+        "player-seat",
+        compact && "player-seat-compact",
+        selectable && "player-seat-target",
+        selected && "player-seat-selected",
+        disabled && "player-seat-dim",
+        isYou && "player-seat-you",
+        !player.alive && "player-seat-dead",
+        className,
       )}
     >
-      <div className="flex items-center gap-2.5">
+      <span className="player-seat-medallion">
         <Avatar
           emoji={player.avatar}
           size={compact ? "sm" : "md"}
@@ -659,73 +797,75 @@ export function PlayerCard({
           connected={player.connected}
           highlight={player.isPresident || player.isChancellor}
         />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5">
-            <p
-              className={clsx(
-                "truncate font-semibold",
-                compact ? "text-xs" : "text-sm",
-                !player.alive && "text-muted line-through",
-              )}
-            >
-              {player.name}
-            </p>
-            {isYou && <span className="text-[9px] text-gold">SEN</span>}
-            {player.isBot && (
-              <Badge tone="muted" className="px-1.5 py-0">
-                <Bot className="h-2.5 w-2.5" /> Bot
-              </Badge>
-            )}
-          </div>
-          <div className="mt-1 flex flex-wrap gap-1">
-            {player.isHost && (
-              <Badge tone="gold" className="px-1.5 py-0">
-                <Crown className="h-2.5 w-2.5" /> Sahip
-              </Badge>
-            )}
-            {player.isPresident && (
-              <Badge tone="gold" className="px-1.5 py-0">
-                Reis
-              </Badge>
-            )}
-            {player.isChancellor && (
-              <Badge tone="liberal" className="px-1.5 py-0">
-                Vezir
-              </Badge>
-            )}
-            {player.isNominee && !player.isChancellor && (
-              <Badge tone="muted" className="px-1.5 py-0">
-                Aday
-              </Badge>
-            )}
-            {!player.alive && (
-              <Badge tone="fascist" className="px-1.5 py-0">
-                Kalebend
-              </Badge>
-            )}
-            {!player.connected && (
-              <Badge tone="fascist" className="px-1.5 py-0">
-                Kopuk
-              </Badge>
-            )}
-            {showRole && player.role && (
-              <Badge
-                tone={
-                  player.role === "liberal"
-                    ? "liberal"
-                    : player.role === "hitler"
-                      ? "gold"
-                      : "fascist"
-                }
-                className="px-1.5 py-0"
-              >
-                {ROLE_LABEL[player.role]}
-              </Badge>
-            )}
-          </div>
-        </div>
-        {selected && <Check className="h-4 w-4 shrink-0 text-gold" />}
-      </div>
+        {player.isPresident && (
+          <span className="seat-flag seat-flag-president" title="Reis">
+            <Crown className="h-2.5 w-2.5" />
+          </span>
+        )}
+        {player.isChancellor && (
+          <span className="seat-flag seat-flag-chancellor" title="Vezir">
+            <Shield className="h-2.5 w-2.5" />
+          </span>
+        )}
+        {player.isNominee && !player.isChancellor && (
+          <span className="seat-flag seat-flag-nominee" title="Aday">
+            <Vote className="h-2.5 w-2.5" />
+          </span>
+        )}
+      </span>
+
+      <span className="player-seat-name">
+        <span className="min-w-0 truncate">{player.name}</span>
+        {player.isHost && <Crown className="h-2.5 w-2.5 shrink-0 text-gold/80" />}
+        {player.isBot && <Bot className="h-2.5 w-2.5 shrink-0 text-muted" />}
+      </span>
+
+      <span className="player-seat-roles">
+        <span
+          className={clsx(
+            "player-seat-badge",
+            !player.alive
+              ? "player-seat-badge-fascist"
+              : showRole && player.role
+                ? roleTone
+                : player.isPresident
+                  ? "player-seat-badge-gold"
+                  : player.isChancellor
+                    ? "player-seat-badge-liberal"
+                    : player.isNominee
+                      ? "player-seat-badge-muted"
+                      : !player.connected
+                        ? "player-seat-badge-fascist"
+                        : "player-seat-badge-muted",
+          )}
+        >
+          {roleLabel}
+        </span>
+      </span>
+
+      {voted && (
+        <span
+          className={clsx(
+            "player-seat-voted",
+            revealedVote === false && "player-seat-voted-no",
+          )}
+          title={
+            revealedVote == null ? "Oy verdi" : revealedVote ? "Evet" : "Hayır"
+          }
+        >
+          {revealedVote === false ? (
+            <X className="h-2.5 w-2.5" />
+          ) : (
+            <Check className="h-2.5 w-2.5" />
+          )}
+        </span>
+      )}
+
+      {selected && (
+        <span className="player-seat-selected-mark">
+          <Check className="h-2.5 w-2.5" />
+        </span>
+      )}
     </button>
   );
 }

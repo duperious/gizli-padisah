@@ -7,8 +7,8 @@ içinde** bu dosya güncellenir. Ayrıntılı çalışma kuralları `AGENTS.md` 
 ## Son güncelleme
 
 - **Tarih:** 24 Ekim 2026
-- **Son doğrulanan özellik sürümü:** `062e268` — Bot oyuncular
-- **Bu güncellemenin konusu:** Zorunlu proje dokümantasyonu ve CI doküman kontrolü
+- **Son doğrulanan özellik sürümü:** Oyun içi masa düzeni — yerel doğrulama
+- **Bu güncellemenin konusu:** Oyun ekranında masa düzeni, oyuncu koltukları ve görsel yenileme
 - **Durum:** Aktif geliştirme; canlı sürüm GitHub Pages'te yayında
 - **Canlı adres:** https://duperious.github.io/gizli-padisah/
 
@@ -154,6 +154,8 @@ yeniden başlar.
 ## Özellik envanteri
 
 - Oda kodu ve tek tık davet linkiyle katılım
+- Masa düzenli oyun ekranı: oyuncu koltukları, büyük Ferman/Islahat tahtası,
+  deste/atık göstergeleri ve Divan Defteri paneli
 - 5–10 oyuncu, gizli rol dağıtımı ve rol reveal ekranı
 - Botlarla eksik kadro tamamlama ve hedef oyuncu sayısı seçimi
 - Reis/Vezir seçimi, oylama, seçim sayacı ve dönem sınırları
@@ -169,16 +171,20 @@ yeniden başlar.
 
 ## Doğrulama durumu
 
-Son doğrulanan özellik sürümü `062e268` için:
+Son doğrulanan özellik sürümü Oyun içi masa düzeni (yerel) ve `062e268` bot
+sürümü için:
 
 - `npx tsc --noEmit` — geçti
 - `npm test` — 59 test geçti
 - `npm run build` — geçti
 - `npm run docs:check` — geçti
-- Playwright duman testleri — solo host + 4 bot, otomatik aday gösterme/oylama,
+- Playwright duman testleri — 1440×1000 masaüstü ve 390×844 mobil; 5 ve 10
+  oyunculu koltuk düzeni, hedef seçimi, oylama ve ferman eleme ekranı;
+  yatay taşma yok
+- Önceki sürüm duman testleri — solo host + 4 bot, otomatik aday gösterme/oylama,
   yasama zinciri, host yenileme ve devam etme
-- GitHub Actions — test, build ve GitHub Pages dağıtımı başarılı
-- Canlı site — ana sayfa, bot ekleme, oyun başlatma ve bot oy verme doğrulandı
+- GitHub Actions — bu değişiklik için push sonrası doğrulanacak
+- Canlı site — bu değişiklik yayınlandıktan sonra doğrulanacak
 
 Dokümantasyon kontrolü bu sürümle birlikte eklendi:
 
@@ -227,8 +233,10 @@ durdurur.
 | `src/net/protocol.ts` | Host/istemci mesajları ve aksiyon allowlist'i |
 | `src/net/storage.ts` | Profil, token ve host durumu için `localStorage` |
 | `src/ui/Lobby.tsx` | Lobi, bot yönetimi ve hedef kadro seçimi |
-| `src/ui/Game.tsx` | Oyun ekranı ve faz arayüzleri |
+| `src/ui/Game.tsx` | Oyun ekranı, masa düzeni, oyuncu seçimi ve faz arayüzleri |
+| `src/ui/parts.tsx` | Ortak kartlar, oyuncu koltukları, Ferman tahtası ve paneller |
 | `src/ui/Rules.tsx` | Kurallar ekranı |
+| `src/index.css` | Tema, masa, koltuk, tahta ve karar kartı stilleri |
 | `tests/engine.test.ts` | Motor, gizli bilgi, zamanlayıcı ve bot lobisi testleri |
 | `tests/bots.test.ts` | Bot kararları ve tam oyun simülasyonu |
 | `scripts/check-docs.mjs` | Dokümantasyon güncelleme denetimi |
@@ -237,6 +245,19 @@ durdurur.
 | `docs/PROJECT_STATE.md` | Bu devir teslim belgesi |
 
 ## Son değişiklik günlüğü
+
+### 24 Ekim 2026 — Oyun arayüzü masa düzeni
+
+- Oyun ekranı masa merkezli düzene taşındı: üstte oyuncu koltukları, ortada
+  büyük Ferman/Islahat tahtası, altta faz kararı ve sağda Divan Defteri paneli.
+- `Board` iki ayrı ferman rayı, dolan koltuklar, yetki etiketleri, deste/atık
+  yığınları ve seçim sayacıyla yeniden tasarlandı.
+- `PlayerCard` oyuncu koltuklarına dönüştürüldü; Reis, Vezir, aday, bot, sahip,
+  oy verdi/oy vermedi ve ölü/kopuk durumları tek bakışta görünüyor.
+- `src/index.css` içine masa yüzeyi, koltuk, ferman rayı, deste yığını ve karar
+  kartı bileşen stilleri eklendi; mobilde 5 ve 10 oyuncu düzeni doğrulandı.
+- Ana sayfa ve lobi korundu. Motor, bot kararları, ağ protokolü ve gizli rol
+  projeksiyonu değiştirilmedi.
 
 ### 24 Ekim 2026 — Dokümantasyon sistemi
 
