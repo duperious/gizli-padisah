@@ -65,10 +65,12 @@ Gereksinimler: Node.js 22 veya daha yenisi, npm.
 
 ```bash
 npm install
-npm run dev       # http://localhost:5173
-npm test          # kural motoru testleri
-npm run build     # tsc + üretim derlemesi
-npm run preview   # derlemeyi yerelde sun
+npm run dev        # http://localhost:5173
+npm test           # motor ve bot testleri
+npx tsc --noEmit   # tip kontrolü
+npm run build      # tsc + üretim derlemesi
+npm run preview    # derlemeyi yerelde sun
+npm run docs:check # dokümantasyon güncelleme kontrolü
 ```
 
 Proje yapısı:
@@ -81,12 +83,15 @@ Proje yapısı:
 - `tests/engine.test.ts` — rol dağılımı, oylama, fermanlar, yetkiler, veto,
   bot lobisi ve kazanma koşulları testleri
 - `tests/bots.test.ts` — bot kararları ve tam oyun otomasyonu testleri
+- `AGENTS.md` — kod ajanları için mimari kurallar ve dokümantasyon protokolü
+- `docs/PROJECT_STATE.md` — güncel proje durumu, devir teslim notları ve
+  değişiklik günlüğü
 
 ## GitHub Pages'e yayınlama
 
 Depo `main` dalına push edildiğinde `.github/workflows/deploy.yml` çalışır:
 
-1. Bağımlılıkları kurar ve testleri çalıştırır.
+1. Bağımlılıkları kurar, dokümantasyon kontrolünü ve testleri çalıştırır.
 2. `GITHUB_PAGES_BASE=/<depo-adı>/` ile derler.
 3. `dist` klasörünü GitHub Pages'e yükler.
 
@@ -94,6 +99,21 @@ Depo `main` dalına push edildiğinde `.github/workflows/deploy.yml` çalışır
 ayarını **GitHub Actions** yapmak gerekir. Proje siteleri
 `https://<kullanıcı>.github.io/<depo-adı>/` altında yayınlanır; uygulama hash
 tabanlı yönlendirme kullandığı için alt dizinde sorunsuz çalışır.
+
+## Proje durumu ve geliştirici notları
+
+Bu proje üzerinde çalışan herkesin (ve kod ajanlarının) şu iki belgeyi okuması
+ve güncel tutması beklenir:
+
+- [`AGENTS.md`](AGENTS.md) — mimari sınırlar, bot kuralları, komutlar ve zorunlu
+  dokümantasyon protokolü.
+- [`docs/PROJECT_STATE.md`](docs/PROJECT_STATE.md) — canlı proje durumu, son
+  doğrulama sonuçları, bilinen sınırlamalar ve değişiklik günlüğü.
+
+Yeni bir özellik, hata düzeltmesi veya altyapı değişikliği yapıldığında
+`docs/PROJECT_STATE.md` aynı iş içinde güncellenmelidir. `npm run docs:check`
+kaynak dosyalar değişip proje durumu güncellenmediğinde hata verir; CI de aynı
+kontrolü çalıştırarak eski dokümantasyonla dağıtım yapılmasını engeller.
 
 ## Lisans ve atıf
 
