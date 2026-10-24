@@ -19,6 +19,7 @@ export interface ClientPlayer {
   connected: boolean;
   ready: boolean;
   isHost: boolean;
+  isBot: boolean;
   isPresident: boolean;
   isChancellor: boolean;
   isNominee: boolean;
@@ -162,6 +163,7 @@ export function project(
       connected: p.connected,
       ready: p.ready,
       isHost: p.id === state.hostId,
+      isBot: Boolean(p.isBot),
       isPresident: p.id === state.presidentId,
       isChancellor: p.id === state.chancellorId,
       isNominee: p.id === state.nomineeId,

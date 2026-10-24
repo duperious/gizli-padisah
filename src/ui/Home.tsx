@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   ArrowRight,
+  Bot,
   Clock,
   Crown,
   Download,
@@ -129,12 +130,16 @@ export function Home() {
           <p className="mt-5 max-w-xl text-sm leading-relaxed text-parchment-2 sm:text-base">
             Divan-ı Hümayun toplanıyor. Islahatçılar mı Divan'ı ayakta tutacak, yoksa
             Saraylılar mı Padişah'ı Vezir koltuğuna oturtacak? Roller gizli, oylar açık,
-            entrika her turda yeniden kurulur.
+            entrika her turda yeniden kurulur. Yalnız kaldıysan lobide bot ekleyip
+            Divan'ı en az 5 kişiye tamamlayabilirsin.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-2">
             <span className="badge border-gold/25 bg-ink/50 text-parchment-2">
               <Users className="h-3 w-3 text-gold" /> 5–10 oyuncu
+            </span>
+            <span className="badge border-gold/25 bg-ink/50 text-parchment-2">
+              <Bot className="h-3 w-3 text-gold" /> Botlarla oynanır
             </span>
             <span className="badge border-gold/25 bg-ink/50 text-parchment-2">
               <Clock className="h-3 w-3 text-gold" /> 20–30 dakika

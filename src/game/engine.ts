@@ -4,6 +4,8 @@ import {
   POWER_LABEL,
   ROLE_LABEL,
 } from "./labels";
+import { AVATARS } from "./avatars";
+import { BOT_NAMES } from "./names";
 import type {
   Action,
   GameState,
@@ -129,6 +131,7 @@ export function createLobby(
     alive: true,
     connected: true,
     ready: true,
+    isBot: false,
     joinedAt: now,
   };
   return {
@@ -193,6 +196,7 @@ export function addPlayer(
     alive: true,
     connected: true,
     ready: false,
+    isBot: false,
     joinedAt: now,
   };
   state.players.push(player);
@@ -214,6 +218,78 @@ export function removePlayer(prev: GameState, playerId: string, now = Date.now()
   state.seq += 1;
   state.updatedAt = now;
   addSystemChat(state, `${player.name} divandan ayrıldı.`, now);
+  return state;
+}
+
+function addBotsToState(state: GameState, count: number, now: number): void {
+  if (state.phase !== "lobby") {
+    throw new GameError("Botlar yalnızca lobide eklenebilir.");
+  }
+  if (!Number.isInteger(count) || count < 1) {
+    throw new GameError("Geçersiz bot sayısı.");
+  }
+  if (state.players.length + count > MAX_PLAYERS) {
+    throw new GameError(`Divan dolu (en fazla ${MAX_PLAYERS} oyuncu).`);
+  }
+
+  const existingBots = state.players.filter((p) => p.isBot).length;
+  const added: Player[] = [];
+  for (let index = 0; index < count; index += 1) {
+    const used = state.players.map((p) => p.avatar);
+    const avatar =
+      AVATARS.find((candidate) => !used.includes(candidate)) ??
+      AVATARS[(existingBots + index) % AVATARS.length]!;
+    const player: Player = {
+      id: uid("p"),
+      name: uniqueName(state, BOT_NAMES[(existingBots + index) % BOT_NAMES.length]!),
+      avatar,
+      token: uid("t"),
+      role: "liberal",
+      alive: true,
+      connected: true,
+      ready: true,
+      isBot: true,
+      joinedAt: now + index,
+    };
+    state.players.push(player);
+    added.push(player);
+  }
+  if (added.length === 1) {
+    addSystemChat(state, `${added[0]!.name} divana katıldı. (bot)`, now);
+  } else {
+    addSystemChat(state, `${added.length} bot divana katıldı.`, now);
+  }
+}
+
+function removeBotFromState(state: GameState, targetId: string, now: number): void {
+  if (state.phase !== "lobby") {
+    throw new GameError("Botlar yalnızca lobide çıkarılabilir.");
+  }
+  const bot = state.players.find((p) => p.id === targetId);
+  if (!bot || !bot.isBot) {
+    throw new GameError("Bu oyuncu bir bot değil.");
+  }
+  state.players = state.players.filter((p) => p.id !== targetId);
+  addSystemChat(state, `${bot.name} divandan ayrıldı. (bot)`, now);
+}
+
+export function addBots(prev: GameState, count: number, now = Date.now()): GameState {
+  const state = structuredClone(prev);
+  state.seq += 1;
+  state.updatedAt = now;
+  addBotsToState(state, count, now);
+  return state;
+}
+
+export function removeBot(prev: GameState, targetId: string, now = Date.now()): GameState {
+  const state = structuredClone(prev);
+  const bot = state.players.find((p) => p.id === targetId);
+  if (!bot || !bot.isBot) {
+    throw new GameError("Bu oyuncu bir bot değil.");
+  }
+  state.seq += 1;
+  state.updatedAt = now;
+  removeBotFromState(state, targetId, now);
   return state;
 }
 
@@ -448,10 +524,13 @@ function startGame(state: GameState, now: number) {
 
   state.presidentId = pickOne(state.players, state).id;
   beginNomination(state, now);
+  const botCount = state.players.filter((player) => player.isBot).length;
   addLog(
     state,
     "system",
-    `Divan toplandı: ${n} oyuncu, ${extraFascists + 1} Saraylı.`,
+    `Divan toplandı: ${n} oyuncu${botCount > 0 ? ` (${botCount} bot)` : ""}, ${
+      extraFascists + 1
+    } Saraylı.`,
     now,
   );
   addLog(
@@ -780,6 +859,18 @@ export function apply(
       actor.ready = action.value;
       break;
     }
+    case "addBots": {
+      requirePhase(state, "lobby");
+      requireHost(state, actor);
+      addBotsToState(state, action.count, now);
+      break;
+    }
+    case "removeBot": {
+      requirePhase(state, "lobby");
+      requireHost(state, actor);
+      removeBotFromState(state, action.target, now);
+      break;
+    }
     case "pace": {
       requirePhase(state, "lobby");
       requireHost(state, actor);
@@ -867,7 +958,7 @@ export function apply(
       state.log = [];
       state.players.forEach((p) => {
         p.alive = true;
-        p.ready = p.id === state.hostId;
+        p.ready = p.isBot || p.id === state.hostId;
         p.role = "liberal";
       });
       addSystemChat(state, "Yeni divan kuruldu. Hazır olanlar bekleniyor.", now);

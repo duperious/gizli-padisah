@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  addBots,
   addPlayer,
   apply,
   boardPowers,
@@ -29,6 +30,10 @@ function makeLobby(n = 5): GameState {
 function started(n = 5): GameState {
   const lobby = makeLobby(n);
   return apply(lobby, lobby.hostId, { type: "start" }, NOW);
+}
+
+function botLobby(humans = 1, bots = 4): GameState {
+  return addBots(makeLobby(humans), bots, NOW);
 }
 
 function roleCounts(state: GameState): Record<Role, number> {
@@ -557,5 +562,92 @@ describe("deste", () => {
     expect(next.presidentHand).toHaveLength(3);
     expect(next.deck).toHaveLength(0);
     expect(next.discard).toHaveLength(0);
+  });
+});
+
+describe("botlar", () => {
+  it("tek insan ve dört botla beş kişilik oyun başlar", () => {
+    const lobby = botLobby(1, 4);
+    expect(lobby.players).toHaveLength(5);
+    const bots = lobby.players.filter((player) => player.isBot);
+    expect(bots).toHaveLength(4);
+    expect(bots.every((bot) => bot.ready && bot.connected)).toBe(true);
+    expect(project(lobby, lobby.hostId, NOW).players.filter((p) => p.isBot)).toHaveLength(4);
+
+    const game = apply(lobby, lobby.hostId, { type: "start" }, NOW);
+    expect(game.phase).not.toBe("lobby");
+    expect(roleCounts(game)).toEqual({ liberal: 3, fascist: 1, hitler: 1 });
+    expect(game.players.filter((player) => player.isBot)).toHaveLength(4);
+  });
+
+  it("botları yalnızca oda sahibi ekleyip çıkarabilir", () => {
+    const lobby = makeLobby(3);
+    const other = lobby.players[1]!;
+    const added = apply(
+      lobby,
+      lobby.hostId,
+      { type: "addBots", count: 2 },
+      NOW,
+    );
+    expect(added.players).toHaveLength(5);
+    const botId = added.players.find((player) => player.isBot)!.id;
+
+    expect(() =>
+      apply(lobby, other.id, { type: "addBots", count: 1 }, NOW),
+    ).toThrow(GameError);
+    expect(() =>
+      apply(added, other.id, { type: "removeBot", target: botId }, NOW),
+    ).toThrow(GameError);
+    expect(() =>
+      apply(added, added.hostId, { type: "removeBot", target: other.id }, NOW),
+    ).toThrow(GameError);
+
+    const removed = apply(
+      added,
+      added.hostId,
+      { type: "removeBot", target: botId },
+      NOW,
+    );
+    expect(removed.players).toHaveLength(4);
+    expect(removed.players.some((player) => player.id === botId)).toBe(false);
+  });
+
+  it("on oyuncu sınırını aşmaz ve geçersiz sayıyı reddeder", () => {
+    const full = addBots(makeLobby(1), 9, NOW);
+    expect(full.players).toHaveLength(10);
+    expect(() => addBots(full, 1, NOW)).toThrow(GameError);
+    expect(() =>
+      apply(full, full.hostId, { type: "addBots", count: 1 }, NOW),
+    ).toThrow(GameError);
+    expect(() => addBots(makeLobby(1), 0, NOW)).toThrow(GameError);
+  });
+
+  it("oyun başladıktan sonra bot eklemez ve çıkarmaz", () => {
+    const lobby = botLobby(1, 4);
+    const game = apply(lobby, lobby.hostId, { type: "start" }, NOW);
+    const botId = game.players.find((player) => player.isBot)!.id;
+    expect(() =>
+      apply(game, game.hostId, { type: "addBots", count: 1 }, NOW),
+    ).toThrow(GameError);
+    expect(() =>
+      apply(game, game.hostId, { type: "removeBot", target: botId }, NOW),
+    ).toThrow(GameError);
+  });
+
+  it("tekrar oyunda botlar hazır kalır, insanlar hazır olur", () => {
+    const lobby = botLobby(2, 3);
+    let state = apply(lobby, lobby.hostId, { type: "start" }, NOW);
+    state.phase = "ended";
+    state.winner = "liberal";
+    state.winReason = "policies";
+    const next = apply(state, state.hostId, { type: "rematch" }, NOW);
+    expect(next.phase).toBe("lobby");
+    for (const player of next.players) {
+      if (player.isBot || player.id === state.hostId) {
+        expect(player.ready).toBe(true);
+      } else {
+        expect(player.ready).toBe(false);
+      }
+    }
   });
 });

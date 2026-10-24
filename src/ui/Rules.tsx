@@ -1,4 +1,4 @@
-import { Crown, Eye, Gavel, ScrollText, Shield, Sparkles, Users, Vote } from "lucide-react";
+import { Bot, Crown, Eye, Gavel, ScrollText, Shield, Sparkles, Users, Vote } from "lucide-react";
 import { Badge, Modal } from "./parts";
 import { POWER_LABEL } from "../game/labels";
 
@@ -75,9 +75,21 @@ export function RulesContent() {
 
       <section>
         <h3 className="mb-2 flex items-center gap-2 font-display text-base font-bold text-parchment">
-          <Users className="h-4 w-4 text-gold" /> Kim kaç kişi?
+          <Bot className="h-4 w-4 text-gold" /> Botlarla oynamak
         </h3>
-        <div className="overflow-hidden rounded-lg border border-gold/15">
+        <p className="rounded-lg border border-gold/15 bg-ink/50 p-2.5 text-[11px] leading-relaxed text-muted">
+          Oda sahibi, lobide istediği oyuncu sayısını seçip eksik kadroyu botlarla
+          tamamlayabilir. Botlar her zaman hazır olur ve Reis seçimi, oylama, ferman
+          eleme, yetki kullanımı gibi sıraları geldiğinde otomatik oynar. Sohbet etmezler
+          ve rolleri diğer oyuncular gibi gizli kalır. Yalnız başlasan bile 4 botla
+          Divan'ı açabilirsin.
+        </p>
+      </section>
+
+      <section>
+        <h3 className="mb-2 flex items-center gap-2 font-display text-base font-bold text-parchment">
+          <Users className="h-4 w-4 text-gold" /> Kim kaç kişi?
+        </h3>        <div className="overflow-hidden rounded-lg border border-gold/15">
           <table className="w-full text-[11px]">
             <thead className="bg-gold/10 text-gold-2">
               <tr>

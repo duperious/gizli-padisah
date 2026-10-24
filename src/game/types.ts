@@ -32,6 +32,7 @@ export interface Player {
   alive: boolean;
   connected: boolean;
   ready: boolean;
+  isBot: boolean;
   joinedAt: number;
 }
 
@@ -115,4 +116,6 @@ export type Action =
   | { type: "special"; target: string }
   | { type: "execute"; target: string }
   | { type: "chat"; text: string }
+  | { type: "addBots"; count: number }
+  | { type: "removeBot"; target: string }
   | { type: "rematch" };

@@ -37,6 +37,8 @@ const ACTION_TYPES = new Set<string>([
   "special",
   "execute",
   "chat",
+  "addBots",
+  "removeBot",
   "rematch",
 ]);
 

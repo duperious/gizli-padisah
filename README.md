@@ -13,6 +13,8 @@ Saraylılar kazanır.
 
 - Oda kodu veya tek tık davet linkiyle katılım
 - 5–10 oyuncu için gizli rol dağıtımı (Islahatçı, Saraylı, Padişah)
+- Eksik kadroyu botlarla tamamlama: tek başına 4 botla oynayabilir veya hedef
+  oyuncu sayısını 5–10 arasında seçebilirsin
 - 6 Saray Fermanı / 11 Islahatçı fermanından oluşan deste
 - Reis ve Vezir seçimi, dönem sınırları, seçim sayacı
 - Teftiş, İstihbarat, Ferman-ı Şahane ve Kalebend yetkileri
@@ -24,14 +26,19 @@ Saraylılar kazanır.
 ## Nasıl oynanır?
 
 1. Bir kişi **Divan Kur**'a basar ve oda kodunu arkadaşlarıyla paylaşır.
-2. Herkes adını ve simgesini seçip odaya katılır.
-3. En az 5 kişi hazır olduğunda oda sahibi **Divan'ı Aç**'a basar.
+2. Herkes adını ve simgesini seçip odaya katılır. Yeterli oyuncu yoksa oda
+   sahibi lobide **Botlar** bölümünden hedef kadroyu seçip eksikleri botlarla
+   tamamlayabilir.
+3. En az 5 kişi (botlar dahil) hazır olduğunda oda sahibi **Divan'ı Aç**'a basar.
 4. Roller gizli dağıtılır. Kimse rol kartını göstermemelidir.
 5. Her turda Reis bir Vezir adayı gösterir; Divan Evet/Hayır oyu verir.
 6. Seçim geçerse Reis üç fermandan birini eler, Vezir kalan iki fermandan birini
    yürürlüğe koyar.
 7. Islahatçılar 5 Islahat geçirirse veya Padişah'ı kalebende gönderirse kazanır.
    Saraylılar 6 Ferman geçirirse veya Padişah'ı Vezir yaparsa kazanır.
+
+Botlar sıraları geldiğinde otomatik oynar; sohbet etmez ve rolleri gizli kalır.
+Oda sahibi, oyun başlamadan önce istediği botu lobiden çıkarabilir.
 
 Oyun içindeki **Kurallar** ekranında yetkiler, rol dağılımı ve dönem sınırları
 ayrıntılı olarak anlatılır.
@@ -66,13 +73,14 @@ npm run preview   # derlemeyi yerelde sun
 
 Proje yapısı:
 
-- `src/game/` — saf oyun motoru, tipler, Türkçe etiketler ve istemciye özel
-  durum projeksiyonu
+- `src/game/` — saf oyun motoru, tipler, Türkçe etiketler, bot karar motoru ve
+  istemciye özel durum projeksiyonu
 - `src/net/` — PeerJS oda/istemci oturumları, protokol, yeniden bağlanma ve
   yerel depolama
 - `src/ui/` — ana sayfa, lobi, oyun ekranı, kurallar ve ortak bileşenler
-- `tests/engine.test.ts` — rol dağılımı, oylama, fermanlar, yetkiler, veto ve
-  kazanma koşulları testleri
+- `tests/engine.test.ts` — rol dağılımı, oylama, fermanlar, yetkiler, veto,
+  bot lobisi ve kazanma koşulları testleri
+- `tests/bots.test.ts` — bot kararları ve tam oyun otomasyonu testleri
 
 ## GitHub Pages'e yayınlama
 

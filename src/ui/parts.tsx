@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import clsx from "clsx";
 import {
   AlertTriangle,
+  Bot,
   Check,
   Copy,
   Crown,
@@ -670,6 +671,11 @@ export function PlayerCard({
               {player.name}
             </p>
             {isYou && <span className="text-[9px] text-gold">SEN</span>}
+            {player.isBot && (
+              <Badge tone="muted" className="px-1.5 py-0">
+                <Bot className="h-2.5 w-2.5" /> Bot
+              </Badge>
+            )}
           </div>
           <div className="mt-1 flex flex-wrap gap-1">
             {player.isHost && (

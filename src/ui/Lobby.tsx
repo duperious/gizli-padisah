@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AlertTriangle,
+  Bot,
   Check,
   Crown,
   LogOut,
@@ -8,6 +9,7 @@ import {
   ScrollText,
   Settings2,
   Users,
+  X,
 } from "lucide-react";
 import clsx from "clsx";
 import type { Action, Pace } from "../game/types";
@@ -48,12 +50,20 @@ export function Lobby({
   const [rulesOpen, setRulesOpen] = useState(false);
   const [confirmClose, setConfirmClose] = useState(false);
   const [notifyText, setNotifyText] = useState("");
+  const [targetTotal, setTargetTotal] = useState(5);
 
   const me = state.players.find((player) => player.id === selfId) ?? null;
+  const bots = state.players.filter((player) => player.isBot);
   const enough = state.players.length >= 5;
   const allReady = enough && state.players.every((player) => player.ready && player.connected);
   const canStart = isHost && enough && allReady;
   const emptySeats = Math.max(0, 10 - state.players.length);
+  const botsToAdd = Math.max(0, targetTotal - state.players.length);
+  const canAddBots = isHost && botsToAdd > 0 && state.players.length < 10;
+
+  useEffect(() => {
+    setTargetTotal((current) => Math.max(current, state.players.length));
+  }, [state.players.length]);
 
   const handleLeave = () => {
     if (isHost) {
@@ -164,6 +174,11 @@ export function Lobby({
                 <Badge tone={allReady ? "gold" : "muted"}>
                   {allReady ? "Herkes hazır" : "Hazırlık sürüyor"}
                 </Badge>
+                {bots.length > 0 && (
+                  <Badge tone="muted">
+                    <Bot className="h-3 w-3" /> {bots.length} bot
+                  </Badge>
+                )}
               </div>
             </div>
 
@@ -188,6 +203,11 @@ export function Lobby({
                       {player.isHost && (
                         <Badge tone="gold" className="px-1.5 py-0">
                           <Crown className="h-2.5 w-2.5" /> Sahip
+                        </Badge>
+                      )}
+                      {player.isBot && (
+                        <Badge tone="muted" className="px-1.5 py-0">
+                          <Bot className="h-2.5 w-2.5" /> Bot
                         </Badge>
                       )}
                       {player.id === selfId && (
@@ -229,6 +249,85 @@ export function Lobby({
               ))}
             </div>
           </section>
+
+          {isHost && (
+            <section className="panel p-4 sm:p-5">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="eyebrow flex items-center gap-1.5">
+                    <Bot className="h-3.5 w-3.5" /> Botlar
+                  </p>
+                  <p className="mt-1 max-w-xl text-xs leading-relaxed text-muted">
+                    Eksik kadroyu botlarla tamamla. Yalnız kalsan bile en az 5 kişiyle
+                    oynayabilirsin; botlar hazır olur ve sıraları gelince otomatik oynar.
+                  </p>
+                </div>
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-gold/15 bg-ink/50 px-2 py-1 text-[10px] text-muted">
+                  <Bot className="h-3 w-3 text-gold/70" /> {bots.length} bot
+                </span>
+              </div>
+
+              {bots.length > 0 && (
+                <div className="mt-3 grid gap-1.5 sm:grid-cols-2">
+                  {bots.map((bot) => (
+                    <div
+                      key={bot.id}
+                      className="flex items-center gap-2 rounded-lg border border-gold/12 bg-ink/35 px-2 py-1.5"
+                    >
+                      <Avatar emoji={bot.avatar} size="xs" />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-semibold">{bot.name}</p>
+                        <p className="text-[9px] uppercase tracking-[0.18em] text-muted/70">
+                          Otomatik oyuncu
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => send({ type: "removeBot", target: bot.id })}
+                        className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-gold/15 text-muted transition hover:border-fascist-2/50 hover:text-fascist-2"
+                        aria-label={`${bot.name} botunu çıkar`}
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-end">
+                <label className="block sm:w-40">
+                  <span className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">
+                    Hedef kadro
+                  </span>
+                  <select
+                    value={targetTotal}
+                    onChange={(event) => setTargetTotal(Number(event.target.value))}
+                    className="input w-full py-2 text-sm"
+                  >
+                    {[5, 6, 7, 8, 9, 10].map((count) => (
+                      <option key={count} value={count}>
+                        {count} oyuncu
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <Button
+                  variant="ghost"
+                  onClick={() => send({ type: "addBots", count: botsToAdd })}
+                  disabled={!canAddBots}
+                  className="w-full sm:flex-1"
+                >
+                  <Bot className="h-4 w-4 text-gold" />
+                  {botsToAdd > 0 ? `${botsToAdd} bot ekle` : "Kadro tamam"}
+                </Button>
+              </div>
+
+              <p className="mt-2 text-[10px] leading-relaxed text-muted/70">
+                Botlar sohbet etmez; rolleri diğer oyuncular gibi gizli kalır. İstediğin
+                zaman lobide bot çıkarabilir, yerine arkadaşını alabilirsin.
+              </p>
+            </section>
+          )}
 
           <section className="panel p-4 sm:p-5">
             {isHost ? (

@@ -1,6 +1,7 @@
 import Peer, { type DataConnection } from "peerjs";
 import { addPlayer, apply, createLobby, GameError, markConnected, removePlayer, tick } from "../game/engine";
-import type { Action, GameState } from "../game/types";
+import { nextBotMove } from "../game/bots";
+import type { Action, GameState, Pace } from "../game/types";
 import { project, type ClientState } from "../game/view";
 import { sanitizeAvatar } from "../game/avatars";
 import { isAction, type ClientMessage, type HostMessage } from "./protocol";
@@ -57,6 +58,12 @@ const PEER_OPTIONS = {
   config: ICE,
 } as const;
 
+const BOT_DELAYS: Record<Pace, [number, number]> = {
+  sakin: [1600, 2400],
+  normal: [950, 1600],
+  hizli: [550, 1000],
+};
+
 abstract class BaseSession implements Session {
   abstract readonly mode: "host" | "client";
   protected listeners = new Set<(snapshot: SessionSnapshot) => void>();
@@ -109,6 +116,8 @@ export class HostSession extends BaseSession {
   private pendingRemoval = new Map<string, number>();
   private chatTimes = new Map<string, number>();
   private timer: number | null = null;
+  private botTimer: number | null = null;
+  private botTimerKey: string | null = null;
   private errorTimer: number | null = null;
   private peerTimer: number | null = null;
 
@@ -122,7 +131,8 @@ export class HostSession extends BaseSession {
     if (saved) {
       this.state = saved;
       this.state.players.forEach((player) => {
-        player.connected = player.id === this.state.hostId;
+        player.isBot = Boolean(player.isBot);
+        player.connected = player.id === this.state.hostId || player.isBot;
       });
       saveHostState(this.state);
     } else {
@@ -144,10 +154,11 @@ export class HostSession extends BaseSession {
     this.refresh();
     // Yeniden açılan odada kısa süre önce kopan oyuncuları lobiden temizle.
     for (const player of this.state.players) {
-      if (player.id !== this.hostId && !player.connected) {
+      if (player.id !== this.hostId && !player.isBot && !player.connected) {
         this.scheduleRemoval(player.id);
       }
     }
+    this.scheduleBots();
   }
 
   private addLifecycle(): void {
@@ -163,7 +174,10 @@ export class HostSession extends BaseSession {
   }
 
   private onBeforeUnload = (event: BeforeUnloadEvent): void => {
-    if (this.state.players.length > 1) {
+    const hasOtherHumans = this.state.players.some(
+      (player) => player.id !== this.hostId && !player.isBot && player.connected,
+    );
+    if (hasOtherHumans) {
       event.preventDefault();
       event.returnValue = "";
     }
@@ -458,11 +472,13 @@ export class HostSession extends BaseSession {
 
   private scheduleRemoval(playerId: string): void {
     if (playerId === this.hostId || this.pendingRemoval.has(playerId)) return;
+    const scheduled = this.state.players.find((player) => player.id === playerId);
+    if (!scheduled || scheduled.isBot) return;
     const timer = window.setTimeout(() => {
       this.pendingRemoval.delete(playerId);
       if (this.disposed) return;
       const player = this.state.players.find((p) => p.id === playerId);
-      if (!player || player.connected || this.state.phase !== "lobby") return;
+      if (!player || player.isBot || player.connected || this.state.phase !== "lobby") return;
       try {
         this.state = removePlayer(this.state, playerId);
         this.saveAndBroadcast();
@@ -533,6 +549,7 @@ export class HostSession extends BaseSession {
     saveHostState(this.state);
     this.broadcast();
     this.schedule();
+    this.scheduleBots();
   }
 
   private broadcast(): void {
@@ -585,6 +602,50 @@ export class HostSession extends BaseSession {
     }
   }
 
+  private clearBotTimer(): void {
+    if (this.botTimer) {
+      clearTimeout(this.botTimer);
+      this.botTimer = null;
+    }
+    this.botTimerKey = null;
+  }
+
+  private scheduleBots(): void {
+    if (this.disposed) return;
+    const move = nextBotMove(this.state);
+    if (!move) {
+      this.clearBotTimer();
+      return;
+    }
+    const key = `${this.state.phase}:${this.state.round}:${this.state.nomineeId ?? ""}:${
+      move.playerId
+    }:${move.action.type}`;
+    if (this.botTimer && this.botTimerKey === key) return;
+
+    this.clearBotTimer();
+    this.botTimerKey = key;
+    const [min, max] = BOT_DELAYS[this.state.settings.pace];
+    const delay = min + Math.random() * (max - min);
+    this.botTimer = window.setTimeout(() => {
+      this.botTimer = null;
+      this.botTimerKey = null;
+      this.runBot();
+    }, delay);
+  }
+
+  private runBot(): void {
+    if (this.disposed) return;
+    const move = nextBotMove(this.state);
+    if (!move) return;
+    try {
+      this.state = apply(this.state, move.playerId, move.action, Date.now());
+      this.saveAndBroadcast();
+    } catch (error) {
+      console.warn("Bot hamlesi uygulanamadı", error);
+      this.scheduleBots();
+    }
+  }
+
   send(action: Action): void {
     if (this.disposed) return;
     this.dispatch(this.hostId, action, null);
@@ -622,6 +683,7 @@ export class HostSession extends BaseSession {
     if (this.timer) clearTimeout(this.timer);
     if (this.errorTimer) clearTimeout(this.errorTimer);
     this.clearPeerTimer();
+    this.clearBotTimer();
     for (const timer of this.pendingRemoval.values()) clearTimeout(timer);
     this.pendingRemoval.clear();
     for (const connection of this.connections.values()) {
