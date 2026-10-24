@@ -241,7 +241,7 @@ export class HostSession extends BaseSession {
       this.clearPeerTimer();
       if (this.snap.status !== "error") {
         this.snap.status = "closed";
-        this.snap.error = "Divan kapandı.";
+        this.snap.error = "Konsey kapandı.";
         this.refresh();
       }
     });
@@ -321,7 +321,7 @@ export class HostSession extends BaseSession {
 
     const meta = this.connMeta.get(connection);
     if (!meta?.playerId) {
-      this.sendError(connection, "Önce divana katıl.");
+      this.sendError(connection, "Önce Konsey'e katıl.");
       return;
     }
     if (message.t === "leave") {
@@ -370,7 +370,7 @@ export class HostSession extends BaseSession {
       } catch (error) {
         this.sendError(
           connection,
-          error instanceof GameError ? error.message : "Divana katılınamadı.",
+          error instanceof GameError ? error.message : "Konsey'e katılınamadı.",
         );
         return;
       }
@@ -661,7 +661,7 @@ export class HostSession extends BaseSession {
       try {
         connection.send({
           t: "closed",
-          message: "Divan sahibi odayı kapattı.",
+          message: "Konsey sahibi odayı kapattı.",
         } satisfies HostMessage);
         connection.close();
       } catch {
@@ -672,7 +672,7 @@ export class HostSession extends BaseSession {
     clearHostState(this.code);
     clearHostInfo(this.code);
     this.snap.status = "closed";
-    this.snap.error = "Divan kapandı.";
+    this.snap.error = "Konsey kapandı.";
     this.emit();
   }
 
@@ -887,7 +887,7 @@ export class ClientSession extends BaseSession {
       this.fatal(
         fatalAfter <= 4
           ? "Oda bulunamadı veya kapandı. Kodu ve oda sahibinin sekmeyi açık tuttuğunu kontrol et."
-          : "Divan dağıldı veya bağlantı kurulamadı. Oda sahibinin sekmeyi açık tutması gerekiyor.",
+          : "Konsey dağıldı veya bağlantı kurulamadı. Oda sahibinin sekmeyi açık tutması gerekiyor.",
       );
       return;
     }

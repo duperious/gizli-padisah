@@ -6,8 +6,8 @@ export function RulesContent() {
   return (
     <div className="space-y-6 text-sm leading-relaxed text-parchment-2">
       <p className="rounded-xl border border-gold/20 bg-gold/5 p-3 text-[13px] text-parchment-2">
-        Divan-ı Hümayun toplanmıştır. Islahatçılar Divan'ı ayakta tutmaya, Saraylılar ise
-        Padişah'ı Vezir koltuğuna oturtmaya çalışır. Roller gizli, oylar açıktır.
+        Savaş Konseyi toplanmıştır. Barışçıllar Konsey'i ayakta tutmaya, Saldırganlar ise
+        Savaş Çığırtkanı'nı Savaş Bakanı koltuğuna oturtmaya çalışır. Roller gizli, oylar açıktır.
       </p>
 
       <section>
@@ -16,12 +16,12 @@ export function RulesContent() {
         </h3>
         <ol className="space-y-2">
           {[
-            "Reis, Vezir adayını gösterir. Reis kendini aday gösteremez; son seçilen Vezir de aday olamaz.",
+            "Konsey Başkanı, Savaş Bakanı adayını gösterir. Konsey Başkanı kendini aday gösteremez; son seçilen Savaş Bakanı da aday olamaz.",
             "Herkes aynı anda Evet veya Hayır oyu verir. Çoğunluk Evet ise seçim geçer.",
-            "Seçim düşerse sayaç bir artar. Sayaç 3 olursa destenin üstündeki ferman yürürlüğe girer ve dönem sınırları sıfırlanır.",
-            "Seçim geçerse Reis 3 fermanı görür, 1'ini eler. Vezir kalan 2 ferman arasından 1'ini seçer.",
-            "Ferman yürürlüğe girince tahtadaki yetki açılır ve Reis onu kullanır.",
-            "Sonraki turda Reis sırası bir sonraki hayattaki oyuncuya geçer.",
+            "Seçim düşerse sayaç bir artar. Sayaç 3 olursa destenin üstündeki karar yürürlüğe girer ve dönem sınırları sıfırlanır.",
+            "Seçim geçerse Konsey Başkanı 3 kararı görür, 1'ini eler. Savaş Bakanı kalan 2 karar arasından 1'ini seçer.",
+            "Karar yürürlüğe girince tahtadaki yetki açılır ve Konsey Başkanı onu kullanır.",
+            "Sonraki turda başkanlık sırası bir sonraki hayattaki oyuncuya geçer.",
           ].map((text, index) => (
             <li key={text} className="flex gap-2.5">
               <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full border border-gold/40 bg-gold/10 text-[10px] font-semibold text-gold-2">
@@ -35,29 +35,29 @@ export function RulesContent() {
 
       <section>
         <h3 className="mb-2 flex items-center gap-2 font-display text-base font-bold text-parchment">
-          <Sparkles className="h-4 w-4 text-gold" /> Ferman yetkileri
+          <Sparkles className="h-4 w-4 text-gold" /> Karar yetkileri
         </h3>
         <div className="grid gap-2 sm:grid-cols-2">
           {[
             {
               icon: Eye,
               title: POWER_LABEL.investigate,
-              text: "Bir oyuncunun hangi tarafta olduğunu öğrenirsin. Padişah da Saraylı görünür.",
+              text: "Bir oyuncunun hangi tarafta olduğunu öğrenirsin. Savaş Çığırtkanı da Saldırgan görünür.",
             },
             {
               icon: Crown,
               title: POWER_LABEL.special,
-              text: "Bir sonraki Reis'i sen seçersin. Sıra atlanır.",
+              text: "Bir sonraki Konsey Başkanı'nı sen seçersin. Sıra atlanır.",
             },
             {
               icon: ScrollText,
               title: POWER_LABEL.peek,
-              text: "Destenin en üstündeki 3 fermanı görürsün. Sıraları değişmez.",
+              text: "Destenin en üstündeki 3 kararı görürsün. Sıraları değişmez.",
             },
             {
               icon: Gavel,
               title: POWER_LABEL.execute,
-              text: "Bir oyuncuyu Divan'dan çıkarırsın. Padişah'ı bulursan Islahatçılar kazanır.",
+              text: "Bir oyuncuyu Konsey'den çıkarırsın. Savaş Çığırtkanı'nı bulursan Barışçıllar kazanır.",
             },
           ].map(({ icon: Icon, title, text }) => (
             <div key={title} className="rounded-lg border border-gold/15 bg-ink/50 p-2.5">
@@ -69,7 +69,7 @@ export function RulesContent() {
           ))}
         </div>
         <p className="mt-2 text-[11px] text-muted">
-          {POWER_LABEL.execute} dışındaki yetkiler sonucu herkes görmez; yalnızca Reis görür.
+          {POWER_LABEL.execute} dışındaki yetkilerin sonucunu herkes görmez; yalnızca Konsey Başkanı görür.
         </p>
       </section>
 
@@ -79,24 +79,25 @@ export function RulesContent() {
         </h3>
         <p className="rounded-lg border border-gold/15 bg-ink/50 p-2.5 text-[11px] leading-relaxed text-muted">
           Oda sahibi, lobide istediği oyuncu sayısını seçip eksik kadroyu botlarla
-          tamamlayabilir. Botlar her zaman hazır olur ve Reis seçimi, oylama, ferman
+          tamamlayabilir. Botlar her zaman hazır olur ve Konsey Başkanı seçimi, oylama, karar
           eleme, yetki kullanımı gibi sıraları geldiğinde otomatik oynar. Sohbet etmezler
           ve rolleri diğer oyuncular gibi gizli kalır. Yalnız başlasan bile 4 botla
-          Divan'ı açabilirsin.
+          Konsey'i açabilirsin.
         </p>
       </section>
 
       <section>
         <h3 className="mb-2 flex items-center gap-2 font-display text-base font-bold text-parchment">
           <Users className="h-4 w-4 text-gold" /> Kim kaç kişi?
-        </h3>        <div className="overflow-hidden rounded-lg border border-gold/15">
+        </h3>
+        <div className="overflow-hidden rounded-lg border border-gold/15">
           <table className="w-full text-[11px]">
             <thead className="bg-gold/10 text-gold-2">
               <tr>
                 <th className="px-2 py-1.5 text-left font-semibold">Oyuncu</th>
-                <th className="px-2 py-1.5 text-left font-semibold">Islahatçı</th>
-                <th className="px-2 py-1.5 text-left font-semibold">Saraylı</th>
-                <th className="px-2 py-1.5 text-left font-semibold">Padişah</th>
+                <th className="px-2 py-1.5 text-left font-semibold">Barışçıl</th>
+                <th className="px-2 py-1.5 text-left font-semibold">Saldırgan</th>
+                <th className="px-2 py-1.5 text-left font-semibold">Savaş Çığırtkanı</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gold/10 text-parchment-2">
@@ -124,9 +125,9 @@ export function RulesContent() {
         </h3>
         <div className="space-y-1.5 text-[11px]">
           {[
-            ["5–6 oyuncu", "3. İstihbarat · 4. Kalebend · 5. Kalebend"],
-            ["7–8 oyuncu", "2. Teftiş · 3. Ferman-ı Şahane · 4–5. Kalebend"],
-            ["9–10 oyuncu", "1–2. Teftiş · 3. Ferman-ı Şahane · 4–5. Kalebend"],
+            ["5–6 oyuncu", "3. İstihbarat · 4. Tutuklama · 5. Tutuklama"],
+            ["7–8 oyuncu", "2. Soruşturma · 3. Özel Seçim · 4–5. Tutuklama"],
+            ["9–10 oyuncu", "1–2. Soruşturma · 3. Özel Seçim · 4–5. Tutuklama"],
           ].map(([count, powers]) => (
             <div
               key={count}
@@ -145,16 +146,16 @@ export function RulesContent() {
         </h3>
         <div className="space-y-1.5 text-[11px]">
           <p>
-            <Badge tone="liberal">Islahatçılar</Badge> 5 Islahat geçirirse ya da Padişah'ı
-            kalebende gönderirse kazanır.
+            <Badge tone="liberal">Barışçıllar</Badge> 5 Barış Kararı geçirirse ya da Savaş
+            Çığırtkanı'nı tutuklarsa kazanır.
           </p>
           <p>
-            <Badge tone="fascist">Saraylılar</Badge> 6 Ferman geçirirse ya da 3 Ferman'dan
-            sonra Padişah'ı Vezir yaparsa kazanır.
+            <Badge tone="fascist">Saldırganlar</Badge> 6 Savaş Kararı geçirirse ya da 3 Savaş
+            Kararı'ndan sonra Savaş Çığırtkanı'nı Savaş Bakanı yaparsa kazanır.
           </p>
           <p className="text-muted">
-            Beşinci Ferman'dan sonra veto açılır: Vezir iki fermanı da iade edebilir; Reis kabul
-            ederse seçim sayacı artar.
+            Beşinci Savaş Kararı'ndan sonra veto açılır: Savaş Bakanı iki kararı da iade
+            edebilir; Konsey Başkanı kabul ederse seçim sayacı artar.
           </p>
         </div>
       </section>
@@ -189,7 +190,7 @@ export function RulesModal({
       open={open}
       onClose={onClose}
       title="Nasıl oynanır?"
-      eyebrow="Divan âdâbı"
+      eyebrow="Konsey âdâbı"
       wide
     >
       <RulesContent />

@@ -37,7 +37,7 @@
   <path d="M256 78 L434 256 L256 434 L78 256 Z" fill="url(#wine)" stroke="url(#gold)" stroke-width="4"/>
   <path d="M256 100 L412 256 L256 412 L100 256 Z" fill="none" stroke="#e8cf8d" stroke-width="1.4" opacity="0.6"/>
 
-  <text x="256" y="296" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="164" font-weight="700" fill="#f4ead7" letter-spacing="2">GP</text>
+  <text x="256" y="296" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="164" font-weight="700" fill="#f4ead7" letter-spacing="2">SK</text>
 
   <!-- alt süs -->
   <g fill="none" stroke="#e8cf8d" stroke-width="3" stroke-linecap="round" opacity="0.85">

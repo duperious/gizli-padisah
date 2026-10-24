@@ -12,7 +12,7 @@ import type { Action, GameState } from "../src/game/types";
 const NOW = 1_700_000_000_000;
 
 function botLobby(botCount = 4): GameState {
-  const lobby = createLobby("BOT01", { name: "Reis", avatar: "🦅" }, NOW, 424242);
+  const lobby = createLobby("BOT01", { name: "Konsey Başkanı", avatar: "🦅" }, NOW, 424242);
   return addBots(lobby, botCount, NOW);
 }
 
@@ -114,7 +114,7 @@ describe("bot kararları", () => {
     expect(nextBotMove(state)).toBeNull();
   });
 
-  it("Reis botu geçerli bir aday gösterir", () => {
+  it("Konsey Başkanı botu geçerli bir aday gösterir", () => {
     const state = botGame();
     const president = state.players.find((player) => player.isBot)!;
     state.phase = "nominate";
@@ -152,7 +152,7 @@ describe("bot kararları", () => {
     expect(state.phase).toBe("vote");
   });
 
-  it("Islahatçı bot kendi fermanını korur, Saraylı bot karşı fermanı atar", () => {
+  it("Barışçıl bot kendi kararını korur, Saldırgan bot karşı kararı atar", () => {
     const base = botGame();
     const liberalBot = base.players.find((player) => player.isBot)!;
     const liberalState = structuredClone(base);
@@ -180,7 +180,7 @@ describe("bot kararları", () => {
     expect(fascistMove.action).toEqual({ type: "discard", index: 1 });
   });
 
-  it("Vezir botu kendi tarafının fermanını yürürlüğe koyar", () => {
+  it("Savaş Bakanı botu kendi tarafının kararını yürürlüğe koyar", () => {
     const base = botGame();
     const chancellor = base.players.find((player) => player.isBot)!;
 
@@ -215,7 +215,7 @@ describe("bot kararları", () => {
     expect(() => apply(state, move.playerId, move.action, NOW)).not.toThrow();
   });
 
-  it("Reis botu yetki kartlarını onaylar ve geçerli hedef seçer", () => {
+  it("Konsey Başkanı botu yetki kartlarını onaylar ve geçerli hedef seçer", () => {
     const base = botGame();
     const president = base.players.find((player) => player.isBot)!;
     const others = base.players.filter((player) => player.id !== president.id);

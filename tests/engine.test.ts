@@ -19,7 +19,7 @@ import type { GameState, Policy, Role } from "../src/game/types";
 const NOW = 1_700_000_000_000;
 
 function makeLobby(n = 5): GameState {
-  let state = createLobby("TEST1", { name: "Reis", avatar: "🦅" }, NOW, 12345);
+  let state = createLobby("TEST1", { name: "Konsey Başkanı", avatar: "🦅" }, NOW, 12345);
   for (let i = 2; i <= n; i += 1) {
     state = addPlayer(state, { name: `Oyuncu ${i}`, avatar: "🌙" }, NOW).state;
   }
@@ -56,9 +56,9 @@ function passVote(state: GameState): GameState {
 describe("lobi", () => {
   it("5-10 oyuncu alır, isimleri benzersizleştirir", () => {
     let state = makeLobby(5);
-    const result = addPlayer(state, { name: "Reis", avatar: "☕" }, NOW);
+    const result = addPlayer(state, { name: "Konsey Başkanı", avatar: "☕" }, NOW);
     state = result.state;
-    expect(result.player.name).toBe("Reis 2");
+    expect(result.player.name).toBe("Konsey Başkanı 2");
     expect(state.players).toHaveLength(6);
   });
 
@@ -118,7 +118,7 @@ describe("rol dağıtımı", () => {
     [8, 2, 5],
     [9, 3, 5],
     [10, 3, 6],
-  ])("%i oyuncuda %i ek Saraylı, %i Islahatçı", (n, fascists, liberals) => {
+  ])("%i oyuncuda %i ek Saldırgan, %i Barışçıl", (n, fascists, liberals) => {
     const state = started(n);
     const counts = roleCounts(state);
     expect(fascistCountFor(n)).toBe(fascists);
@@ -127,7 +127,7 @@ describe("rol dağıtımı", () => {
     expect(counts.liberal).toBe(liberals);
   });
 
-  it("17 kartlık desteyi kurar (6 Islahat, 11 Ferman)", () => {
+  it("17 kartlık desteyi kurar (6 Barış Kararı, 11 Savaş Kararı)", () => {
     const state = started(5);
     expect(state.deck).toHaveLength(17);
     expect(state.deck.filter((c) => c === "liberal")).toHaveLength(6);
@@ -150,14 +150,14 @@ describe("seçim akışı", () => {
     expect(next.votes).toEqual({});
   });
 
-  it("Reis kendini aday gösteremez", () => {
+  it("Konsey Başkanı kendini aday gösteremez", () => {
     const state = started(5);
     expect(() =>
       apply(state, state.presidentId!, { type: "nominate", target: state.presidentId! }, NOW),
     ).toThrow(GameError);
   });
 
-  it("son seçilen Vezir'i aday gösteremez", () => {
+  it("son seçilen Savaş Bakanı'nı aday gösteremez", () => {
     const state = started(7);
     const other = state.players.find((p) => p.id !== state.presidentId)!;
     state.lastElectedChancellor = other.id;
@@ -166,7 +166,7 @@ describe("seçim akışı", () => {
     ).toThrow(GameError);
   });
 
-  it("5 kişi kaldığında son Reis Vezir adayı olabilir", () => {
+  it("5 kişi kaldığında son Konsey Başkanı Savaş Bakanı adayı olabilir", () => {
     const state = started(5);
     const other = state.players.find((p) => p.id !== state.presidentId)!;
     state.lastElectedPresident = other.id;
@@ -189,7 +189,7 @@ describe("seçim akışı", () => {
     expect(next.lastElectedPresident).toBe(state.presidentId);
   });
 
-  it("reddedilen seçim sayacı artırır ve Reis'i döndürür", () => {
+  it("reddedilen seçim sayacı artırır ve Konsey Başkanı'nı döndürür", () => {
     const state = started(5);
     const nominee = eligibleNominees(state)[0]!;
     let next = apply(
@@ -207,7 +207,7 @@ describe("seçim akışı", () => {
     expect(next.presidentId).not.toBe(state.presidentId);
   });
 
-  it("üç reddedilen seçim desteden ferman çıkarır ve sayacı sıfırlar", () => {
+  it("üç reddedilen seçim desteden karar çıkarır ve sayacı sıfırlar", () => {
     let state = started(5);
     const before = state.deck.length;
     for (let i = 0; i < 3; i += 1) {
@@ -229,7 +229,7 @@ describe("seçim akışı", () => {
     expect(state.lastElectedChancellor).toBeNull();
   });
 
-  it("Padişah 3 fermandan sonra Vezir olursa Saray kazanır", () => {
+  it("Savaş Çığırtkanı 3 Savaş Kararı'ndan sonra Savaş Bakanı olursa Saldırganlar kazanır", () => {
     const state = started(5);
     const hitler = state.players.find((p) => p.role === "hitler")!;
     state.fascist = 3;
@@ -251,7 +251,7 @@ describe("seçim akışı", () => {
     expect(next.winReason).toBe("hitler");
   });
 
-  it("Padişah 3 fermandan önce Vezir olursa oyun sürer", () => {
+  it("Savaş Çığırtkanı 3 Savaş Kararı'ndan önce Savaş Bakanı olursa oyun sürer", () => {
     const state = started(5);
     const hitler = state.players.find((p) => p.role === "hitler")!;
     state.fascist = 2;
@@ -272,7 +272,7 @@ describe("seçim akışı", () => {
 });
 
 describe("yasama", () => {
-  it("Reis 3 karttan birini eler, Vezir 2 karttan birini seçer", () => {
+  it("Konsey Başkanı 3 karttan birini eler, Savaş Bakanı 2 karttan birini seçer", () => {
     let state = passVote(started(5));
     const presidentId = state.presidentId!;
     state.presidentHand = ["liberal", "fascist", "fascist"];
@@ -289,7 +289,7 @@ describe("yasama", () => {
     expect(state.round).toBe(2);
   });
 
-  it("5 Islahat oyunu bitirir", () => {
+  it("5 Barış Kararı oyunu bitirir", () => {
     let state = passVote(started(5));
     state.liberal = 4;
     state.presidentHand = ["liberal", "fascist", "fascist"];
@@ -300,7 +300,7 @@ describe("yasama", () => {
     expect(state.winReason).toBe("policies");
   });
 
-  it("6 Ferman oyunu bitirir", () => {
+  it("6 Savaş Kararı oyunu bitirir", () => {
     let state = passVote(started(5));
     state.fascist = 5;
     state.presidentHand = ["fascist", "liberal", "liberal"];
@@ -310,7 +310,7 @@ describe("yasama", () => {
     expect(state.winner).toBe("fascist");
   });
 
-  it("Ferman yetkisi açar ve onay sonrası tur döner", () => {
+  it("Üçüncü Savaş Kararı yetkiyi açar ve onay sonrası tur döner", () => {
     let state = passVote(started(5));
     state.fascist = 2;
     state.presidentHand = ["fascist", "liberal", "liberal"];
@@ -327,7 +327,7 @@ describe("yasama", () => {
     expect(peeked).not.toBeNull();
   });
 
-  it("teftiş sonucu yalnızca Reis'e gösterilir", () => {
+  it("soruşturma sonucu yalnızca Konsey Başkanı'na gösterilir", () => {
     let state = passVote(started(7));
     state.fascist = 1;
     state.presidentHand = ["fascist", "liberal", "liberal"];
@@ -350,7 +350,7 @@ describe("yasama", () => {
     expect(otherView.you.investigate).toBeNull();
   });
 
-  it("kalebend Padişah'ı vurursa Islahatçılar kazanır", () => {
+  it("tutuklama Savaş Çığırtkanı'nı vurursa Barışçıllar kazanır", () => {
     const state = started(5);
     const hitler = state.players.find((p) => p.role === "hitler")!;
     state.phase = "power_execute";
@@ -370,7 +370,7 @@ describe("yasama", () => {
 });
 
 describe("veto", () => {
-  it("Vezir veto ister, Reis kabul ederse iki kart atılır ve sayaç artar", () => {
+  it("Savaş Bakanı veto ister, Konsey Başkanı kabul ederse iki kart atılır ve sayaç artar", () => {
     let state = passVote(started(5));
     state.presidentHand = ["liberal", "fascist", "fascist"];
     state = apply(state, state.presidentId!, { type: "discard", index: 0 }, NOW);
@@ -385,7 +385,7 @@ describe("veto", () => {
     expect(state.phase).toBe("nominate");
   });
 
-  it("Reis vetoyu reddederse Vezir kart seçmek zorunda", () => {
+  it("Konsey Başkanı vetoyu reddederse Savaş Bakanı kart seçmek zorunda", () => {
     let state = passVote(started(5));
     state.presidentHand = ["liberal", "fascist", "fascist"];
     state = apply(state, state.presidentId!, { type: "discard", index: 0 }, NOW);
@@ -427,7 +427,7 @@ describe("yetki tablosu", () => {
     expect(powerFor(5, 6)).toBeNull();
   });
 
-  it("özel seçim bir sonraki Reis'i atar", () => {
+  it("özel seçim bir sonraki Konsey Başkanı'nı atar", () => {
     const state = started(7);
     const president = state.presidentId!;
     const target = state.players.find((p) => p.id !== president)!.id;
@@ -454,19 +454,19 @@ describe("gizli bilgi", () => {
     expect(view.players.every((p) => p.role === null)).toBe(true);
   });
 
-  it("Saraylılar birbirini, Padişah 7+ oyunda kimseyi bilmez", () => {
+  it("Saldırganlar birbirini, Savaş Çığırtkanı 7+ oyunda kimseyi bilmez", () => {
     const state = started(7);
     const fascist = state.players.find((p) => p.role === "fascist")!;
     const hitler = state.players.find((p) => p.role === "hitler")!;
     const fascistView = project(state, fascist.id, NOW);
     expect(fascistView.you.teammates).toContain(hitler.id);
-    expect(fascistView.you.teammates).toHaveLength(2); // Hitler + diğer Saraylı
+    expect(fascistView.you.teammates).toHaveLength(2); // Hitler + diğer Saldırgan
 
     const hitlerView = project(state, hitler.id, NOW);
     expect(hitlerView.you.teammates).toEqual([]);
   });
 
-  it("5-6 oyunda Padişah Saraylıları bilir", () => {
+  it("5-6 oyunda Savaş Çığırtkanı Saldırganları bilir", () => {
     const state = started(5);
     const hitler = state.players.find((p) => p.role === "hitler")!;
     const fascist = state.players.find((p) => p.role === "fascist")!;
@@ -492,7 +492,7 @@ describe("gizli bilgi", () => {
     expect(revealed.votes.revealed).not.toBeNull();
   });
 
-  it("Reis'in elini yalnızca Reis görür", () => {
+  it("Konsey Başkanı'nın elini yalnızca Konsey Başkanı görür", () => {
     const state = passVote(started(5));
     const presidentView = project(state, state.presidentId!, NOW);
     expect(presidentView.you.hand).toHaveLength(3);

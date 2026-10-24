@@ -111,7 +111,7 @@ export function Lobby({
               type="button"
               onClick={handleLeave}
               className="btn-ghost px-2 py-2 text-xs"
-              aria-label={isHost ? "Divanı kapat" : "Ayrıl"}
+              aria-label={isHost ? "Konsey'i kapat" : "Ayrıl"}
             >
               <LogOut className="h-4 w-4" />
               <span className="hidden sm:inline">{isHost ? "Kapat" : "Ayrıl"}</span>
@@ -127,7 +127,7 @@ export function Lobby({
               <Crown className="h-52 w-52" strokeWidth={0.8} />
             </div>
             <div className="relative z-10">
-              <p className="eyebrow">Divan-ı Hümayun · Lobi</p>
+              <p className="eyebrow">Savaş Konseyi · Lobi</p>
               <div className="mt-2 flex flex-wrap items-end gap-x-5 gap-y-2">
                 <div>
                   <p className="text-[11px] uppercase tracking-[0.18em] text-muted">Oda kodu</p>
@@ -148,8 +148,8 @@ export function Lobby({
               </div>
               <p className="mt-3 max-w-xl text-sm leading-relaxed text-parchment-2">
                 {isHost
-                  ? "Arkadaşların kodu veya linki kullanarak katılsın. Herkes hazır olduğunda Divan'ı aç."
-                  : "Oda sahibi herkes hazır olunca Divan'ı açacak. Bu sırada sohbet edebilirsin."}
+                  ? "Arkadaşların kodu veya linki kullanarak katılsın. Herkes hazır olduğunda Konsey'i aç."
+                  : "Oda sahibi herkes hazır olunca Konsey'i açacak. Bu sırada sohbet edebilirsin."}
               </p>
               {notifyText && (
                 <p className="mt-2 text-xs text-liberal-2">{notifyText}</p>
@@ -160,7 +160,7 @@ export function Lobby({
           <section className="panel p-4 sm:p-5">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <div>
-                <p className="eyebrow">Divan üyeleri</p>
+                <p className="eyebrow">Konsey üyeleri</p>
                 <p className="font-display text-lg font-bold">
                   {state.players.length}
                   <span className="text-muted"> / 10 kişi</span>
@@ -244,7 +244,7 @@ export function Lobby({
                   key={`empty-${index}`}
                   className="flex min-h-[60px] items-center justify-center rounded-xl border border-dashed border-gold/12 bg-ink/25 px-3 text-[10px] uppercase tracking-[0.2em] text-muted/50"
                 >
-                  Boş divan yeri
+                  Boş koltuk
                 </div>
               ))}
             </div>
@@ -337,7 +337,7 @@ export function Lobby({
                     <Settings2 className="h-3.5 w-3.5" /> Tur temposu
                   </p>
                   <p className="mt-1 text-xs text-muted">
-                    Süre dolunca Divan otomatik hamle yapar. Tartışmaya alan bırakmak için
+                    Süre dolunca Konsey otomatik hamle yapar. Tartışmaya alan bırakmak için
                     sakin tempoyu seç.
                   </p>
                   <div className="mt-2 grid grid-cols-3 gap-2">
@@ -363,7 +363,7 @@ export function Lobby({
                   <p className="flex items-start gap-2 rounded-lg border border-gold/15 bg-gold/[0.04] px-3 py-2 text-[11px] text-muted">
                     <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold" />
                     {!enough
-                      ? "Divan'ı açmak için en az 5 oyuncu gerekli."
+                      ? "Konsey'i açmak için en az 5 oyuncu gerekli."
                       : !allReady
                         ? "Herkesin hazır ve bağlı olması gerekiyor."
                         : ""}
@@ -377,7 +377,7 @@ export function Lobby({
                   className="w-full py-3 text-base"
                 >
                   <Play className="h-4 w-4" />
-                  Divan'ı Aç
+                  Konsey'i Aç
                 </Button>
               </div>
             ) : (
@@ -406,15 +406,15 @@ export function Lobby({
             <p className="mt-3 flex items-start gap-2 border-t border-gold/10 pt-3 text-[10px] leading-relaxed text-muted/75">
               <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold/60" />
               {isHost
-                ? "Sen oda sahibisin: sekmeyi kapatırsan veya sayfayı yenilemezsen divan dağılır. Tarayıcıyı arka planda tutmakta sorun yok."
-                : "Oda sahibi sekmeyi kapatırsa divan dağılır. Bağlantın koparsa aynı linke dönerek yerine geri oturabilirsin."}
+                ? "Sen oda sahibisin: sekmeyi kapatırsan konsey dağılır. Tarayıcıyı arka planda tutmakta sorun yok."
+                : "Oda sahibi sekmeyi kapatırsa konsey dağılır. Bağlantın koparsa aynı linke dönerek yerine geri oturabilirsin."}
             </p>
           </section>
         </div>
 
         <aside className="panel flex h-[420px] flex-col p-3.5 sm:p-4 lg:sticky lg:top-[68px] lg:h-[calc(100dvh-90px)]">
           <div className="mb-2 flex items-center justify-between">
-            <p className="eyebrow">Divan sohbeti</p>
+            <p className="eyebrow">Konsey sohbeti</p>
             <span className="text-[10px] text-muted">{state.chat.length} mesaj</span>
           </div>
           <ChatPanel
@@ -430,7 +430,7 @@ export function Lobby({
       <Modal
         open={confirmClose}
         onClose={() => setConfirmClose(false)}
-        title="Divan'ı kapat?"
+        title="Konsey'i kapat?"
         eyebrow="Oda sahibi"
         footer={
           <div className="flex gap-2">
@@ -446,7 +446,7 @@ export function Lobby({
       >
         <p className="text-sm leading-relaxed text-parchment-2">
           Oda kapanınca tüm oyuncuların bağlantısı kesilir ve bu kod bir daha kullanılamaz.
-          Arkadaşlarınla yeniden oynamak için yeni bir divan kurman gerekir.
+          Arkadaşlarınla yeniden oynamak için yeni bir konsey kurman gerekir.
         </p>
       </Modal>
     </div>

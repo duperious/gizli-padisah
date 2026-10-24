@@ -63,10 +63,10 @@ function RoomSession({ code }: { code: string }) {
         <LoadingScreen
           label={
             isHost
-              ? "Divan-ı Hümayun kuruluyor…"
+              ? "Savaş Konseyi kuruluyor…"
               : session.status === "offline"
                 ? "Oda aranıyor; yeniden deniyorum…"
-                : "Divan'a bağlanılıyor…"
+                : "Konsey'e bağlanılıyor…"
           }
         />
         {session.error && (
@@ -165,7 +165,7 @@ function JoinGate({
       <main className="relative z-10 mx-auto w-full max-w-md px-4 pb-16 pt-6">
         <div className="mb-4 text-center">
           <p className="eyebrow">Davet edildin</p>
-          <h1 className="title mt-1 text-3xl">Divan'a katıl</h1>
+          <h1 className="title mt-1 text-3xl">Konsey'e katıl</h1>
           <p className="mt-2 text-sm text-parchment-2">
             Oda kodu{" "}
             <span className="font-mono text-base tracking-[0.18em] text-gold-2">
@@ -186,7 +186,7 @@ function JoinGate({
                 setError(null);
               }}
               maxLength={18}
-              placeholder="Divan'da nasıl anılsın?"
+              placeholder="Konsey'de nasıl anılsın?"
               className="input"
               autoComplete="nickname"
               autoFocus
@@ -225,7 +225,7 @@ function JoinGate({
 
           <Button type="submit" variant="gold" className="mt-5 w-full py-3">
             <Crown className="h-4 w-4" />
-            Divan'a Gir
+            Konsey'e Gir
             <ArrowRight className="h-4 w-4" />
           </Button>
           <p className="mt-3 text-center text-[10px] text-muted/80">
@@ -284,7 +284,7 @@ function RoomError({
             </div>
             <p className="eyebrow mt-4">Oda {code}</p>
             <h1 className="title mt-1 text-2xl">
-              {closed ? "Divan kapandı" : "Divan'a ulaşılamadı"}
+              {closed ? "Konsey kapandı" : "Konsey'e ulaşılamadı"}
             </h1>
             <p className="mt-3 text-sm leading-relaxed text-parchment-2">
               {message ??
@@ -344,7 +344,7 @@ function InvalidRoom({ raw }: { raw: string }) {
           </div>
           <h1 className="title mt-4 text-2xl">Geçersiz oda kodu</h1>
           <p className="mt-2 text-sm text-parchment-2">
-            <span className="font-mono text-gold-2">{raw || "…"}</span> geçerli bir divan
+            <span className="font-mono text-gold-2">{raw || "…"}</span> geçerli bir oda
             kodu değil. Oda kodları 5 karakterdir ve karışmasın diye bazı harfleri
             kullanmaz.
           </p>

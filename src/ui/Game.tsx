@@ -30,6 +30,7 @@ import {
   TEAM_NAME,
   WIN_REASON_LABEL,
 } from "../game/labels";
+import { accusative, dative } from "../game/grammar";
 import type { ClientPlayer, ClientState } from "../game/view";
 import type { SessionStatus } from "../net/session";
 import { roomUrl } from "../net/roomCode";
@@ -94,6 +95,10 @@ export function Game({
   const votedAlready = state.votes.voted.includes(you.id);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     setTarget(null);
     setCardIndex(null);
     setVetoOpen(false);
@@ -141,14 +146,14 @@ export function Game({
         return (
           <ActionCard
             tone="gold"
-            title="Vezir adayı"
+            title="Savaş Bakanı adayı"
             eyebrow={`Tur ${state.round}`}
             icon={<Landmark className="h-4 w-4" />}
           >
             {you.can.nominate ? (
               <>
                 <p className="text-sm text-parchment-2">
-                  Divan'ın önüne bir Vezir adayı çıkar. Dönem sınırına takılan isimler
+                  Konsey'in önüne bir Savaş Bakanı adayı çıkar. Dönem sınırına takılan isimler
                   listelenmez.
                 </p>
                 <PlayerPicker
@@ -166,15 +171,15 @@ export function Game({
                   className="w-full py-3"
                 >
                   <Vote className="h-4 w-4" />
-                  {selectedPlayer ? `${selectedPlayer.name}'i Aday Göster` : "Aday Seç"}
+                  {selectedPlayer ? `${accusative(selectedPlayer.name)} Aday Göster` : "Aday Seç"}
                 </Button>
               </>
             ) : (
               <Waiting
                 text={
                   president
-                    ? `Reis ${president.name} Vezir adayını seçiyor.`
-                    : "Reis adayını seçiyor."
+                    ? `Konsey Başkanı ${president.name} Savaş Bakanı adayını seçiyor.`
+                    : "Konsey Başkanı adayını seçiyor."
                 }
               />
             )}
@@ -191,10 +196,10 @@ export function Game({
           >
             <div className="flex flex-wrap items-center gap-2 text-sm text-parchment-2">
               <span>
-                <strong className="text-gold-2">{president?.name}</strong> Reis,
+                <strong className="text-gold-2">{president?.name}</strong> Konsey Başkanı,
               </span>
               <span>
-                <strong className="text-parchment">{nominee?.name}</strong> adayını Vezir
+                <strong className="text-parchment">{nominee?.name}</strong> adayını Savaş Bakanı
                 gösterdi.
               </span>
             </div>
@@ -216,12 +221,12 @@ export function Game({
             ) : votedAlready ? (
               <div className="flex items-center gap-2 rounded-xl border border-liberal-2/30 bg-liberal/10 px-3 py-3 text-sm text-liberal-2">
                 <Check className="h-4 w-4" />
-                Oyun verildi. Divan'ın geri kalanı bekleniyor.
+                Oy verildi. Konsey'in geri kalanı bekleniyor.
               </div>
             ) : !you.alive ? (
               <div className="flex items-center gap-2 rounded-xl border border-fascist-2/30 bg-fascist/10 px-3 py-3 text-sm text-fascist-2">
                 <Skull className="h-4 w-4" />
-                Kalebenddesin; bu oylamada söz hakkın yok.
+                Tutuklusun; bu oylamada söz hakkın yok.
               </div>
             ) : (
               <Waiting text="Oyun bekleniyor." />
@@ -291,8 +296,8 @@ export function Game({
             <Waiting
               text={
                 yes > no
-                  ? `${nominee?.name} Vezir oldu. Fermanlar çekiliyor…`
-                  : "Seçim düştü. Reis sırası dönüyor…"
+                  ? `${nominee?.name} Savaş Bakanı oldu. Kararlar çekiliyor…`
+                  : "Seçim düştü. Başkanlık sırası dönüyor…"
               }
             />
           </ActionCard>
@@ -303,15 +308,18 @@ export function Game({
         return (
           <ActionCard
             tone="gold"
-            title="Ferman eleme"
+            title="Karar eleme"
             eyebrow={`Tur ${state.round}`}
             icon={<ScrollText className="h-4 w-4" />}
           >
             {you.can.discard && you.hand ? (
               <>
                 <p className="text-sm text-parchment-2">
-                  Üç fermanı gördün. Birini elersin; kalan iki ferman Vezir{" "}
-                  <strong className="text-parchment">{chancellor?.name}</strong>'e gider.
+                  Üç kararı gördün. Birini elersin; kalan iki karar Savaş Bakanı{" "}
+                  <strong className="text-parchment">
+                    {chancellor ? dative(chancellor.name) : ""}
+                  </strong>{" "}
+                  gider.
                 </p>
                 <div className="flex flex-wrap justify-center gap-3 py-1">
                   {you.hand.map((policy, index) => (
@@ -325,8 +333,8 @@ export function Game({
                 </div>
                 <p className="text-center text-xs text-muted">
                   {cardIndex !== null
-                    ? `${POLICY_LABEL[you.hand[cardIndex]!]} fermanını eliyorsun.`
-                    : "Elemek istediğin fermana dokun."}
+                    ? `${POLICY_LABEL[you.hand[cardIndex]!]}'nı eliyorsun.`
+                    : "Elemek istediğin karara dokun."}
                 </p>
                 <Button
                   variant="gold"
@@ -336,7 +344,7 @@ export function Game({
                   }}
                   className="w-full"
                 >
-                  <ScrollText className="h-4 w-4" /> Fermanı Ele
+                  <ScrollText className="h-4 w-4" /> Kararı Ele
                 </Button>
               </>
             ) : (
@@ -349,8 +357,8 @@ export function Game({
                 <Waiting
                   text={
                     president
-                      ? `Reis ${president.name} fermanları inceliyor.`
-                      : "Reis fermanları inceliyor."
+                      ? `Konsey Başkanı ${president.name} kararları inceliyor.`
+                      : "Konsey Başkanı kararları inceliyor."
                   }
                 />
               </>
@@ -362,14 +370,14 @@ export function Game({
         return (
           <ActionCard
             tone="gold"
-            title="Ferman yürürlüğü"
+            title="Karar yürürlüğü"
             eyebrow={`Tur ${state.round}`}
             icon={<ScrollText className="h-4 w-4" />}
           >
             {you.can.enact && you.hand ? (
               <>
                 <p className="text-sm text-parchment-2">
-                  İki ferman kaldı. Birini yürürlüğe koy; diğeri atılır.
+                  İki karar kaldı. Birini yürürlüğe koy; diğeri atılır.
                 </p>
                 <div className="flex flex-wrap justify-center gap-4 py-1">
                   {you.hand.map((policy, index) => (
@@ -384,7 +392,7 @@ export function Game({
                 <p className="text-center text-xs text-muted">
                   {cardIndex !== null
                     ? `${POLICY_LABEL[you.hand[cardIndex]!]} yürürlüğe girecek.`
-                    : "Yürürlüğe koymak istediğin fermana dokun."}
+                    : "Yürürlüğe koymak istediğin karara dokun."}
                 </p>
                 <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
                   <Button
@@ -412,8 +420,8 @@ export function Game({
                 <Waiting
                   text={
                     chancellor
-                      ? `Vezir ${chancellor.name} ferman seçiyor.`
-                      : "Vezir ferman seçiyor."
+                      ? `Savaş Bakanı ${chancellor.name} karar seçiyor.`
+                      : "Savaş Bakanı karar seçiyor."
                   }
                 />
               </>
@@ -436,7 +444,7 @@ export function Game({
             {you.can.vetoResponse ? (
               <>
                 <p className="text-sm text-parchment-2">
-                  Vezir iki fermanı da iade etmek istiyor. Kabul edersen iki ferman da
+                  Savaş Bakanı iki kararı da iade etmek istiyor. Kabul edersen iki karar da
                   atılır ve <strong className="text-parchment">seçim sayacı bir artar</strong>.
                 </p>
                 <div className="grid grid-cols-2 gap-2">
@@ -455,7 +463,7 @@ export function Game({
                 </div>
               </>
             ) : (
-              <Waiting text="Reis veto kararını veriyor." />
+              <Waiting text="Konsey Başkanı veto kararını veriyor." />
             )}
           </ActionCard>
         );
@@ -486,11 +494,11 @@ export function Game({
                   className="w-full"
                 >
                   <Eye className="h-4 w-4" />
-                  {selectedPlayer ? `${selectedPlayer.name}'i Teftiş Et` : "Hedef Seç"}
+                  {selectedPlayer ? `${accusative(selectedPlayer.name)} Soruştur` : "Hedef Seç"}
                 </Button>
               </>
             ) : (
-              <Waiting text="Reis bir oyuncuyu teftiş ediyor." />
+              <Waiting text="Konsey Başkanı bir oyuncuyu soruşturuyor." />
             )}
           </ActionCard>
         );
@@ -503,7 +511,7 @@ export function Game({
         return (
           <ActionCard
             tone={result?.party === "fascist" ? "fascist" : "liberal"}
-            title="Teftiş sonucu"
+            title="Soruşturma sonucu"
             eyebrow={`Tur ${state.round}`}
             icon={<Eye className="h-4 w-4" />}
           >
@@ -517,7 +525,7 @@ export function Game({
                       {PARTY_LABEL[result.party]}
                     </Badge>
                     <p className="mt-1 text-[11px] text-muted">
-                      Padişah da Saraylı olarak görünür.
+                      Savaş Çığırtkanı da Saldırgan olarak görünür.
                     </p>
                   </div>
                 </div>
@@ -526,7 +534,7 @@ export function Game({
                 </Button>
               </>
             ) : (
-              <Waiting text="Reis teftiş sonucunu inceliyor." />
+              <Waiting text="Konsey Başkanı soruşturma sonucunu inceliyor." />
             )}
           </ActionCard>
         );
@@ -543,7 +551,7 @@ export function Game({
             {you.can.ack && you.peeked ? (
               <>
                 <p className="text-sm text-parchment-2">
-                  Destenin en üstündeki üç ferman. İlk çekilecek kart en solda.
+                  Destenin en üstündeki üç karar. İlk çekilecek kart en solda.
                 </p>
                 <div className="flex flex-wrap justify-center gap-2 py-1">
                   {you.peeked.map((policy, index) => (
@@ -558,7 +566,7 @@ export function Game({
                 </Button>
               </>
             ) : (
-              <Waiting text="Reis istihbarat raporunu inceliyor." />
+              <Waiting text="Konsey Başkanı istihbarat raporunu inceliyor." />
             )}
           </ActionCard>
         );
@@ -589,11 +597,11 @@ export function Game({
                   className="w-full"
                 >
                   <Crown className="h-4 w-4" />
-                  {selectedPlayer ? `${selectedPlayer.name}'i Reis İlan Et` : "Hedef Seç"}
+                  {selectedPlayer ? `${accusative(selectedPlayer.name)} Başkan İlan Et` : "Hedef Seç"}
                 </Button>
               </>
             ) : (
-              <Waiting text="Reis bir sonraki Reis'i seçiyor." />
+              <Waiting text="Konsey Başkanı bir sonraki başkanı seçiyor." />
             )}
           </ActionCard>
         );
@@ -617,7 +625,7 @@ export function Game({
                 />
                 <p className="flex items-start gap-2 rounded-lg border border-fascist-2/30 bg-fascist/10 px-2.5 py-2 text-[11px] text-fascist-2">
                   <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                  Kalebend geri alınamaz. Padişah'ı bulursan Islahatçılar kazanır.
+                  Tutuklama geri alınamaz. Savaş Çığırtkanı'nı bulursan Barışçıllar kazanır.
                 </p>
                 <Button
                   variant="danger"
@@ -628,11 +636,11 @@ export function Game({
                   className="w-full"
                 >
                   <Gavel className="h-4 w-4" />
-                  {selectedPlayer ? `${selectedPlayer.name}'i Kalebende Gönder` : "Hedef Seç"}
+                  {selectedPlayer ? `${accusative(selectedPlayer.name)} Tutukla` : "Hedef Seç"}
                 </Button>
               </>
             ) : (
-              <Waiting text="Reis kalebend emrini hazırlıyor." />
+              <Waiting text="Konsey Başkanı tutuklama emrini hazırlıyor." />
             )}
           </ActionCard>
         );
@@ -641,12 +649,12 @@ export function Game({
         return (
           <ActionCard
             tone={state.winner === "liberal" ? "liberal" : "fascist"}
-            title="Divan kapandı"
+            title="Konsey kapandı"
             eyebrow={WIN_REASON_LABEL[state.winReason ?? "policies"]}
             icon={<Crown className="h-4 w-4" />}
           >
             <p className="font-display text-2xl font-bold">
-              {state.winner === "liberal" ? "Islahatçılar kazandı" : "Saraylılar kazandı"}
+              {state.winner === "liberal" ? "Barışçıllar kazandı" : "Saldırganlar kazandı"}
             </p>
             <div className="grid gap-2 sm:grid-cols-2">
               <Button variant="gold" onClick={() => setGameOverOpen(true)}>
@@ -749,7 +757,7 @@ export function Game({
           <div className="flex items-center gap-2 rounded-xl border border-gold/30 bg-gold/10 px-3 py-2 text-xs">
             <Crown className="h-4 w-4 text-gold" />
             <span className="flex-1">
-              Oyun bitti: {state.winner === "liberal" ? "Islahatçılar" : "Saraylılar"}{" "}
+              Oyun bitti: {state.winner === "liberal" ? "Barışçıllar" : "Saldırganlar"}{" "}
               kazandı.
             </span>
             <button
@@ -790,7 +798,7 @@ export function Game({
         <aside className="chronicle-panel hidden p-3 lg:sticky lg:top-[72px] lg:flex lg:h-[calc(100dvh-88px)] lg:flex-col">
           <div className="mb-2 flex items-center justify-between gap-2">
             <div>
-              <p className="eyebrow">Divan Defteri</p>
+              <p className="eyebrow">Konsey Defteri</p>
               <p className="text-[11px] text-muted">Olan biten ve sözler</p>
             </div>
             <ScrollText className="h-4 w-4 text-gold/60" />
@@ -830,7 +838,7 @@ export function Game({
             )}
           </div>
           <div className="mt-2 border-t border-gold/10 pt-2 text-center text-[9px] uppercase tracking-[0.18em] text-muted/60">
-            Divan-ı Hümayun · {code}
+            Savaş Konseyi · {code}
           </div>
         </aside>
       </main>
@@ -875,7 +883,7 @@ export function Game({
       <Modal
         open={sheet !== null}
         onClose={() => setSheet(null)}
-        title={sheet === "chat" ? "Divan sohbeti" : "Divan günlüğü"}
+        title={sheet === "chat" ? "Konsey sohbeti" : "Konsey günlüğü"}
         eyebrow={sheet === "chat" ? "Söz sırası sende" : "Neler oldu?"}
         wide
       >
@@ -897,7 +905,7 @@ export function Game({
         open={vetoOpen}
         onClose={() => setVetoOpen(false)}
         title="Vetoyu iste?"
-        eyebrow="Vezir yetkisi"
+        eyebrow="Savaş Bakanı yetkisi"
         footer={
           <div className="flex gap-2">
             <Button variant="ghost" className="flex-1" onClick={() => setVetoOpen(false)}>
@@ -917,15 +925,15 @@ export function Game({
         }
       >
         <p className="text-sm leading-relaxed text-parchment-2">
-          İki fermanı da iade etmek istiyorsun. Reis kabul ederse iki ferman atılır ve seçim
-          sayacı bir artar. Reddederse fermanlardan birini seçmek zorunda kalırsın.
+          İki kararı da iade etmek istiyorsun. Konsey Başkanı kabul ederse iki karar atılır ve seçim
+          sayacı bir artar. Reddederse kararlardan birini seçmek zorunda kalırsın.
         </p>
       </Modal>
 
       <Modal
         open={leaveOpen}
         onClose={() => setLeaveOpen(false)}
-        title="Divan'ı kapat?"
+        title="Konsey'i kapat?"
         eyebrow="Oda sahibi"
         footer={
           <div className="flex gap-2">
@@ -946,7 +954,7 @@ export function Game({
       <Modal
         open={gameOverOpen && state.phase === "ended"}
         onClose={() => setGameOverOpen(false)}
-        title="Divan kapandı"
+        title="Konsey kapandı"
         eyebrow={state.winReason ? WIN_REASON_LABEL[state.winReason] : undefined}
         wide
         footer={
@@ -977,7 +985,7 @@ export function Game({
           className={clsx(
             "relative overflow-hidden rounded-2xl border-2 p-5",
             state.winner === "liberal"
-              ? "border-liberal-2/50 bg-gradient-to-br from-liberal/60 to-[#12291f]"
+              ? "border-liberal-2/50 bg-gradient-to-br from-liberal/60 to-[#122033]"
               : "border-fascist-2/60 bg-gradient-to-br from-wine to-[#2a0a10]",
           )}
         >
@@ -986,16 +994,16 @@ export function Game({
           </div>
           <p className="text-[10px] uppercase tracking-[0.26em] text-white/60">Sonuç</p>
           <h3 className="font-display text-3xl font-bold">
-            {state.winner === "liberal" ? "Islahatçılar kazandı" : "Saraylılar kazandı"}
+            {state.winner === "liberal" ? "Barışçıllar kazandı" : "Saldırganlar kazandı"}
           </h3>
           <p className="mt-1 text-sm text-white/75">
             {state.winReason === "hitler"
-              ? "Padişah, üçüncü Ferman'dan sonra Vezir koltuğuna oturdu."
+              ? "Savaş Çığırtkanı, üçüncü Savaş Kararı'ndan sonra Savaş Bakanı koltuğuna oturdu."
               : state.winReason === "executed"
-                ? "Padişah kalebende gönderildi; Divan nefes aldı."
+                ? "Savaş Çığırtkanı tutuklandı; Konsey nefes aldı."
                 : state.winner === "liberal"
-                  ? "Beş Islahat yürürlüğe girdi."
-                  : "Altı Ferman yürürlüğe girdi."}
+                  ? "Beş Barış Kararı yürürlüğe girdi."
+                  : "Altı Savaş Kararı yürürlüğe girdi."}
           </p>
         </div>
 
@@ -1056,7 +1064,7 @@ function PlayerRail({
     <div>
       <div className="mb-2 flex flex-wrap items-end justify-between gap-2">
         <div>
-          <p className="eyebrow">Divan Üyeleri</p>
+          <p className="eyebrow">Konsey Üyeleri</p>
           <p className="font-display text-lg font-bold leading-none">
             {aliveCount}
             <span className="text-muted"> / {state.players.length} hayatta</span>
@@ -1176,7 +1184,7 @@ function ActionCard({
           </h2>
         </div>
         <span className="hidden shrink-0 text-[9px] font-semibold uppercase tracking-[0.22em] text-muted/55 sm:block">
-          Divan Kararı
+          Konsey Kararı
         </span>
       </div>
       <div className="space-y-3">{children}</div>

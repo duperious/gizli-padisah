@@ -23,8 +23,8 @@ iş tamamlanmış sayılmaz.
 
 ## Proje özeti
 
-- Ürün: **Gizli Padişah**, Secret Hitler mekaniğinden esinlenen Türk temalı,
-  tarayıcıdan oynanan gizli rol oyunu.
+- Ürün: **Savaş Konseyi**, Secret Hitler mekaniğinden esinlenen savaş konseyi
+  temalı, tarayıcıdan oynanan gizli rol oyunu.
 - Canlı adres: https://duperious.github.io/gizli-padisah/
 - Teknoloji: React 19, TypeScript, Vite, Tailwind CSS 4, PeerJS, Vitest, PWA.
 - Oda modeli: Sunucusuz ve **host-authoritative**. Oyun durumu oda sahibinin
@@ -68,13 +68,13 @@ sunmak gerekir.
 
 - Oda sahibi lobide 5–10 arasında hedef kadro seçer ve eksikleri botla
   tamamlayabilir. Tek insan + 4 bot geçerli bir 5 kişilik oyundur.
-- Botlar aday gösterme, oy verme, ferman eleme/yürürlüğe koyma, veto ve tüm
+- Botlar aday gösterme, oy verme, karar eleme/yürürlüğe koyma, veto ve tüm
   yetkilerde otomatik karar verir.
 - Botlar sohbet etmez.
 - Botlar hile yapmamalıdır:
-  - Islahatçı bot kimseyi tanımaz.
-  - Saraylı botlar Padişah'ı ve birbirini tanır.
-  - Padişah 5–6 oyunda Saraylıları tanır; 7+ oyunda kimseyi tanımaz.
+  - Barışçıl bot kimseyi tanımaz.
+  - Saldırgan botlar Savaş Çığırtkanı'nı ve birbirini tanır.
+  - Savaş Çığırtkanı 5–6 oyunda Saldırganları tanır; 7+ oyunda kimseyi tanımaz.
   - Botlar yalnızca kendi rolleri, elleri ve herkese açık tahta bilgisiyle karar
     verir.
 - Bot gecikmeleri lobi temposuna (`sakin`, `normal`, `hizli`) göre ölçeklenir.
@@ -85,12 +85,14 @@ sunmak gerekir.
 - `src/game/bots.ts` — bot karar mantığı (`nextBotMove`).
 - `src/game/types.ts` — `Player.isBot`, aksiyon tipleri.
 - `src/game/view.ts` — istemci projeksiyonu ve `isBot` alanı.
+- `src/game/grammar.ts` — oyuncu adlarına gelen Türkçe ekler.
 - `src/net/session.ts` — host oturumu, PeerJS, bot zamanlayıcısı, yeniden bağlanma.
 - `src/net/protocol.ts` — istemci aksiyon allowlist'i.
 - `src/ui/Lobby.tsx` — bot ekleme/çıkarma, hedef kadro seçimi.
 - `src/ui/parts.tsx` — ortak oyuncu kartları ve bot rozeti.
 - `tests/engine.test.ts` — kural motoru ve bot lobisi testleri.
 - `tests/bots.test.ts` — bot kararları ve tam oyun simülasyonu.
+- `tests/grammar.test.ts` — Türkçe ad ekleri testleri.
 - `.github/workflows/deploy.yml` — test, doküman kontrolü, build ve Pages dağıtımı.
 
 ## Dil ve ürün kuralları
@@ -98,8 +100,11 @@ sunmak gerekir.
 - Kullanıcıya görünen metinler Türkçe olmalı.
 - Motor içi anahtarlar İngilizce kalmalı: `liberal`, `fascist`, `hitler`,
   `nominate`, `vote`, `discard` vb. Türkçe etiketler `src/game/labels.ts` içinde.
-- Temel terimler korunmalı: Divan-ı Hümayun, Padişah, Ferman, Islahat, Reis,
-  Vezir, Kalebend, Teftiş, Ferman-ı Şahane.
+- Oyuncu adlarına gelen belirtme, yönelme ve tamlayan ekleri `src/game/grammar.ts`
+  üzerinden üretilmeli; sabit `'i` / `'e` ekleri kullanılmamalı.
+- Temel terimler korunmalı: Savaş Konseyi, Savaş Çığırtkanı, Barışçıllar,
+  Saldırganlar, Barış Kararı, Savaş Kararı, Konsey Başkanı, Savaş Bakanı,
+  Tutuklama, Soruşturma, Özel Seçim.
 - Ücretli backend, Cloudflare Workers veya yeni bir sunucu eklenmemeli. Dağıtım
   GitHub Pages üzerinde kalmalı.
 - Gizli roller istemci görünümünde oyun bitmeden açılmamalı.
@@ -137,7 +142,7 @@ bot oy verme akışını doğrula.
 - Oda sahibinin sekmesi açık kalmalıdır; gerçek bir sunucu yoktur.
 - Host, geliştirici araçlarıyla tüm rolleri görebilir. Bu mimarinin bilinçli bir
   sınırıdır.
-- Botlar sohbet etmez ve teftiş sonuçlarını sonraki turlarda hatırlamaz.
+- Botlar sohbet etmez ve soruşturma sonuçlarını sonraki turlarda hatırlamaz.
 - PeerJS bağlantısı kısıtlı ağlarda STUN/TURN nedeniyle kurulamayabilir.
 - PWA önbelleği eski sürümü gösterebilir; canlı doğrulamada yeni bağlam kullan.
 

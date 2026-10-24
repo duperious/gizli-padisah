@@ -109,7 +109,7 @@ function teammatesOf(state: GameState, viewerId: string): string[] {
       )
       .map((p) => p.id);
   }
-  // Padişah: 5-6 kişilik oyunda yandaşlarını bilir.
+  // Savaş Çığırtkanı: 5-6 kişilik oyunda yandaşlarını bilir.
   if (state.players.length <= 6) {
     return state.players
       .filter((p) => p.role === "fascist")

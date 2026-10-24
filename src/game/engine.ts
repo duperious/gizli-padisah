@@ -4,6 +4,7 @@ import {
   POWER_LABEL,
   ROLE_LABEL,
 } from "./labels";
+import { accusative, genitive } from "./grammar";
 import { AVATARS } from "./avatars";
 import { BOT_NAMES } from "./names";
 import type {
@@ -81,7 +82,7 @@ function addSystemChat(state: GameState, text: string, now: number) {
     id: uid("c"),
     at: now,
     playerId: "",
-    name: "Divan",
+    name: "Konsey",
     text,
     system: true,
   });
@@ -182,7 +183,7 @@ export function addPlayer(
     throw new GameError("Oyun başladı; yeni oyuncu alınamıyor.");
   }
   if (prev.players.length >= MAX_PLAYERS) {
-    throw new GameError("Divan dolu (en fazla 10 oyuncu).");
+    throw new GameError("Konsey dolu (en fazla 10 oyuncu).");
   }
   const state = structuredClone(prev);
   state.seq += 1;
@@ -200,7 +201,7 @@ export function addPlayer(
     joinedAt: now,
   };
   state.players.push(player);
-  addSystemChat(state, `${player.name} divana katıldı.`, now);
+  addSystemChat(state, `${player.name} Konsey'e katıldı.`, now);
   return { state, player };
 }
 
@@ -209,7 +210,7 @@ export function removePlayer(prev: GameState, playerId: string, now = Date.now()
     throw new GameError("Oyun sırasında oyuncu çıkarılamaz.");
   }
   if (playerId === prev.hostId) {
-    throw new GameError("Divan sahibi odadan çıkarılamaz.");
+    throw new GameError("Konsey sahibi odadan çıkarılamaz.");
   }
   const state = structuredClone(prev);
   const player = state.players.find((p) => p.id === playerId);
@@ -217,7 +218,7 @@ export function removePlayer(prev: GameState, playerId: string, now = Date.now()
   state.players = state.players.filter((p) => p.id !== playerId);
   state.seq += 1;
   state.updatedAt = now;
-  addSystemChat(state, `${player.name} divandan ayrıldı.`, now);
+  addSystemChat(state, `${player.name} Konsey'den ayrıldı.`, now);
   return state;
 }
 
@@ -229,7 +230,7 @@ function addBotsToState(state: GameState, count: number, now: number): void {
     throw new GameError("Geçersiz bot sayısı.");
   }
   if (state.players.length + count > MAX_PLAYERS) {
-    throw new GameError(`Divan dolu (en fazla ${MAX_PLAYERS} oyuncu).`);
+    throw new GameError(`Konsey dolu (en fazla ${MAX_PLAYERS} oyuncu).`);
   }
 
   const existingBots = state.players.filter((p) => p.isBot).length;
@@ -255,9 +256,9 @@ function addBotsToState(state: GameState, count: number, now: number): void {
     added.push(player);
   }
   if (added.length === 1) {
-    addSystemChat(state, `${added[0]!.name} divana katıldı. (bot)`, now);
+    addSystemChat(state, `${added[0]!.name} Konsey'e katıldı. (bot)`, now);
   } else {
-    addSystemChat(state, `${added.length} bot divana katıldı.`, now);
+    addSystemChat(state, `${added.length} bot Konsey'e katıldı.`, now);
   }
 }
 
@@ -270,7 +271,7 @@ function removeBotFromState(state: GameState, targetId: string, now: number): vo
     throw new GameError("Bu oyuncu bir bot değil.");
   }
   state.players = state.players.filter((p) => p.id !== targetId);
-  addSystemChat(state, `${bot.name} divandan ayrıldı. (bot)`, now);
+  addSystemChat(state, `${bot.name} Konsey'den ayrıldı. (bot)`, now);
 }
 
 export function addBots(prev: GameState, count: number, now = Date.now()): GameState {
@@ -310,7 +311,7 @@ export function markConnected(
   if (state.phase === "lobby") {
     addSystemChat(
       state,
-      connected ? `${player.name} geri döndü.` : `${player.name}'in bağlantısı koptu.`,
+      connected ? `${player.name} geri döndü.` : `${genitive(player.name)} bağlantısı koptu.`,
       now,
     );
   }
@@ -324,11 +325,11 @@ function getPlayer(state: GameState, id: string): Player {
 }
 
 function requireHost(state: GameState, actor: Player) {
-  if (actor.id !== state.hostId) throw new GameError("Bu hamle yalnızca Divan sahibine ait.");
+  if (actor.id !== state.hostId) throw new GameError("Bu hamle yalnızca Konsey sahibine ait.");
 }
 
 function requireAlive(actor: Player) {
-  if (!actor.alive) throw new GameError("Divan'dan çıkarıldın; bu hamleyi yapamazsın.");
+  if (!actor.alive) throw new GameError("Konsey'den çıkarıldın; bu hamleyi yapamazsın.");
 }
 
 function requirePhase(state: GameState, ...phases: GameState["phase"][]) {
@@ -366,7 +367,7 @@ export function powerFor(playerCount: number, fascistPolicies: number): Power | 
   return null;
 }
 
-/** Tahtadaki 1..6 numaralı ferman yuvalarının yetkileri (0 kullanılmaz). */
+/** Tahtadaki 1..6 numaralı karar yuvalarının yetkileri (0 kullanılmaz). */
 export function boardPowers(playerCount: number): (Power | null)[] {
   const slots: (Power | null)[] = [null];
   for (let i = 1; i <= 6; i += 1) slots.push(powerFor(playerCount, i));
@@ -410,7 +411,7 @@ function ensureDeck(state: GameState, needed: number, now: number) {
   const merged = shuffle([...state.deck, ...state.discard], state);
   state.deck = merged;
   state.discard = [];
-  addLog(state, "system", "Deste tükendi; atılan fermanlar yeniden karıştırıldı.", now);
+  addLog(state, "system", "Deste tükendi; atılan kararlar yeniden karıştırıldı.", now);
 }
 
 function drawOne(state: GameState, now: number): Policy {
@@ -474,7 +475,7 @@ function startGame(state: GameState, now: number) {
   if (n < MIN_PLAYERS) throw new GameError(`En az ${MIN_PLAYERS} oyuncu gerekli.`);
   if (n > MAX_PLAYERS) throw new GameError(`En fazla ${MAX_PLAYERS} oyuncu oynayabilir.`);
   if (state.players.some((p) => !p.ready)) {
-    throw new GameError("Herkes hazır olmadan Divan açılmaz.");
+    throw new GameError("Herkes hazır olmadan Konsey açılmaz.");
   }
   if (state.players.some((p) => !p.connected)) {
     throw new GameError("Bağlantısı kopan oyuncu var. Herkesin dönmesini bekle.");
@@ -528,15 +529,15 @@ function startGame(state: GameState, now: number) {
   addLog(
     state,
     "system",
-    `Divan toplandı: ${n} oyuncu${botCount > 0 ? ` (${botCount} bot)` : ""}, ${
+    `Konsey toplandı: ${n} oyuncu${botCount > 0 ? ` (${botCount} bot)` : ""}, ${
       extraFascists + 1
-    } Saraylı.`,
+    } Saldırgan.`,
     now,
   );
   addLog(
     state,
     "info",
-    `İlk Reis ${getPlayer(state, state.presidentId!).name}. Vezir adayını bekliyoruz.`,
+    `İlk Konsey Başkanı ${getPlayer(state, state.presidentId!).name}. Savaş Bakanı adayını bekliyoruz.`,
     now,
   );
 }
@@ -549,7 +550,7 @@ function startLegislative(state: GameState, now: number) {
   addLog(
     state,
     "info",
-    `Reis ${getPlayer(state, state.presidentId!).name} ve Vezir ${getPlayer(
+    `Konsey Başkanı ${getPlayer(state, state.presidentId!).name} ve Savaş Bakanı ${getPlayer(
       state,
       state.chancellorId!,
     ).name} yasama için çekildi.`,
@@ -571,7 +572,9 @@ function endGame(state: GameState, winner: Party, reason: WinReason, now: number
   addLog(
     state,
     "system",
-    winner === "liberal" ? "Islahatçılar kazandı. Divan nefes aldı." : "Saraylılar kazandı. Fermanlar yürürlükte.",
+    winner === "liberal"
+      ? "Barışçıllar kazandı. Konsey nefes aldı."
+      : "Saldırganlar kazandı. Savaş Kararları yürürlükte.",
     now,
   );
 }
@@ -588,7 +591,7 @@ function enactPolicy(
   addLog(
     state,
     "policy",
-    `${POLICY_LABEL[policy]} yürürlüğe girdi. (Islahat ${state.liberal}/5 · Ferman ${state.fascist}/6)`,
+    `${POLICY_LABEL[policy]} yürürlüğe girdi. (Barış ${state.liberal}/5 · Savaş ${state.fascist}/6)`,
     now,
   );
 
@@ -629,7 +632,7 @@ function startPower(state: GameState, power: Power, now: number) {
   addLog(
     state,
     "power",
-    `Reis ${getPlayer(state, state.presidentId!).name} yetki kullanıyor: ${POWER_LABEL[power]}.`,
+    `Konsey Başkanı ${getPlayer(state, state.presidentId!).name} yetki kullanıyor: ${POWER_LABEL[power]}.`,
     now,
   );
 }
@@ -659,7 +662,7 @@ function resolveVoteResult(state: GameState, now: number) {
     state.lastElectedPresident = state.presidentId;
     state.lastElectedChancellor = nomineeId;
     state.tracker = 0;
-    addLog(state, "election", `Seçim geçti: ${nominee.name} Vezir oldu.`, now);
+    addLog(state, "election", `Seçim geçti: ${nominee.name} Savaş Bakanı oldu.`, now);
 
     if (nominee.role === "hitler" && state.fascist >= 3) {
       endGame(state, "fascist", "hitler", now);
@@ -670,7 +673,7 @@ function resolveVoteResult(state: GameState, now: number) {
   }
 
   state.chancellorId = null;
-  addLog(state, "election", `Seçim düştü. ${nominee.name} Vezir olamadı.`, now);
+  addLog(state, "election", `Seçim düştü. ${nominee.name} Savaş Bakanı olamadı.`, now);
   failElection(state, now);
 }
 
@@ -685,7 +688,7 @@ function failElection(state: GameState, now: number) {
     addLog(
       state,
       "policy",
-      "Üç seçim üst üste düştü; destenin üstündeki ferman yürürlüğe giriyor.",
+      "Üç seçim üst üste düştü; destenin üstündeki karar yürürlüğe giriyor.",
       now,
     );
     const card = drawOne(state, now);
@@ -697,13 +700,18 @@ function failElection(state: GameState, now: number) {
 function actNominate(state: GameState, actor: Player, targetId: string, now: number) {
   requirePhase(state, "nominate");
   requireAlive(actor);
-  if (state.presidentId !== actor.id) throw new GameError("Adayı yalnızca Reis gösterir.");
+  if (state.presidentId !== actor.id) throw new GameError("Adayı yalnızca Konsey Başkanı gösterir.");
   const target = getPlayer(state, targetId);
   if (!eligibleNominees(state).some((p) => p.id === target.id)) {
     throw new GameError("Bu oyuncu aday olamaz (dönem sınırı veya hayatta değil).");
   }
   state.nomineeId = target.id;
-  addLog(state, "election", `${actor.name}, ${target.name}'i Vezirliğe aday gösterdi.`, now);
+  addLog(
+    state,
+    "election",
+    `${actor.name}, ${accusative(target.name)} Savaş Bakanlığı'na aday gösterdi.`,
+    now,
+  );
   setPhase(state, "vote", now);
 }
 
@@ -720,23 +728,23 @@ function actVote(state: GameState, actor: Player, value: boolean, now: number) {
 
 function actDiscard(state: GameState, actor: Player, index: number, now: number) {
   requirePhase(state, "president_discard");
-  if (actor.id !== state.presidentId) throw new GameError("Fermanı yalnızca Reis eler.");
+  if (actor.id !== state.presidentId) throw new GameError("Kararı yalnızca Konsey Başkanı eler.");
   const hand = state.presidentHand;
-  if (!hand || index < 0 || index >= hand.length) throw new GameError("Geçersiz ferman.");
+  if (!hand || index < 0 || index >= hand.length) throw new GameError("Geçersiz karar.");
   const discarded = hand[index]!;
   const remaining = hand.filter((_, i) => i !== index);
   state.presidentHand = null;
   state.chancellorHand = remaining;
   state.discard.push(discarded);
-  addLog(state, "info", "Reis bir fermanı eledi.", now);
+  addLog(state, "info", "Konsey Başkanı bir kararı eledi.", now);
   setPhase(state, "chancellor_enact", now);
 }
 
 function actEnact(state: GameState, actor: Player, index: number, now: number) {
   requirePhase(state, "chancellor_enact");
-  if (actor.id !== state.chancellorId) throw new GameError("Fermanı yalnızca Vezir seçer.");
+  if (actor.id !== state.chancellorId) throw new GameError("Kararı yalnızca Savaş Bakanı seçer.");
   const hand = state.chancellorHand;
-  if (!hand || index < 0 || index >= hand.length) throw new GameError("Geçersiz ferman.");
+  if (!hand || index < 0 || index >= hand.length) throw new GameError("Geçersiz karar.");
   const chosen = hand[index]!;
   const other = hand[1 - index]!;
   state.chancellorHand = null;
@@ -749,18 +757,18 @@ function actEnact(state: GameState, actor: Player, index: number, now: number) {
 function actVetoRequest(state: GameState, actor: Player, now: number) {
   requirePhase(state, "chancellor_enact");
   if (state.fascist < 5) throw new GameError("Veto henüz açılmadı.");
-  if (actor.id !== state.chancellorId) throw new GameError("Vetoyu yalnızca Vezir ister.");
+  if (actor.id !== state.chancellorId) throw new GameError("Vetoyu yalnızca Savaş Bakanı ister.");
   if (state.vetoRequested) throw new GameError("Veto hakkı bu tur kullanıldı.");
   state.vetoRequested = true;
-  addLog(state, "power", `${actor.name} veto istedi. Karar Reis'te.`, now);
+  addLog(state, "power", `${actor.name} veto istedi. Karar Konsey Başkanı'nda.`, now);
   setPhase(state, "veto_response", now);
 }
 
 function actVetoResponse(state: GameState, actor: Player, accept: boolean, now: number) {
   requirePhase(state, "veto_response");
-  if (actor.id !== state.presidentId) throw new GameError("Veto kararını yalnızca Reis verir.");
+  if (actor.id !== state.presidentId) throw new GameError("Veto kararını yalnızca Konsey Başkanı verir.");
   if (!accept) {
-    addLog(state, "election", "Veto reddedildi; Vezir fermanlardan birini seçmek zorunda.", now);
+    addLog(state, "election", "Veto reddedildi; Savaş Bakanı kararlardan birini seçmek zorunda.", now);
     setPhase(state, "chancellor_enact", now);
     return;
   }
@@ -768,7 +776,7 @@ function actVetoResponse(state: GameState, actor: Player, accept: boolean, now: 
   if (state.chancellorHand) state.discard.push(...state.chancellorHand);
   state.chancellorHand = null;
   state.tracker += 1;
-  addLog(state, "election", "Veto kabul edildi; iki ferman da geri çevrildi.", now);
+  addLog(state, "election", "Veto kabul edildi; iki karar da geri çevrildi.", now);
 
   if (state.tracker >= 3) {
     state.tracker = 0;
@@ -777,7 +785,7 @@ function actVetoResponse(state: GameState, actor: Player, accept: boolean, now: 
     addLog(
       state,
       "policy",
-      "Üçüncü kez tıkandı; destenin üstündeki ferman yürürlüğe giriyor.",
+      "Üçüncü kez tıkandı; destenin üstündeki karar yürürlüğe giriyor.",
       now,
     );
     const card = drawOne(state, now);
@@ -797,29 +805,29 @@ function actAck(state: GameState, actor: Player, now: number) {
   if (state.phase !== "power_peek" && state.phase !== "power_investigate_result") {
     throw new GameError("Onaylanacak bir yetki yok.");
   }
-  if (actor.id !== state.presidentId) throw new GameError("Yetkiyi yalnızca Reis kapatır.");
+  if (actor.id !== state.presidentId) throw new GameError("Yetkiyi yalnızca Konsey Başkanı kapatır.");
   finishPower(state, now);
 }
 
 function actInvestigate(state: GameState, actor: Player, targetId: string, now: number) {
   requirePhase(state, "power_investigate");
-  if (actor.id !== state.presidentId) throw new GameError("Teftişi yalnızca Reis yapar.");
+  if (actor.id !== state.presidentId) throw new GameError("Soruşturmayı yalnızca Konsey Başkanı yapar.");
   const target = getPlayer(state, targetId);
   if (!target.alive || target.id === actor.id) throw new GameError("Geçersiz hedef.");
   state.investigate = { targetId: target.id, party: partyOf(target.role) };
-  addLog(state, "power", `${actor.name}, ${target.name}'i teftiş etti.`, now);
+  addLog(state, "power", `${actor.name}, ${accusative(target.name)} soruşturdu.`, now);
   setPhase(state, "power_investigate_result", now);
 }
 
 function actSpecial(state: GameState, actor: Player, targetId: string, now: number) {
   requirePhase(state, "power_special");
-  if (actor.id !== state.presidentId) throw new GameError("Fermanı yalnızca Reis kullanır.");
+  if (actor.id !== state.presidentId) throw new GameError("Özel seçimi yalnızca Konsey Başkanı kullanır.");
   const target = getPlayer(state, targetId);
   if (!target.alive || target.id === actor.id) throw new GameError("Geçersiz hedef.");
   addLog(
     state,
     "power",
-    `${actor.name}, Ferman-ı Şahane ile ${target.name}'i bir sonraki Reis ilan etti.`,
+    `${actor.name}, Özel Seçim ile ${accusative(target.name)} bir sonraki Konsey Başkanı ilan etti.`,
     now,
   );
   beginRound(state, now, target.id);
@@ -827,11 +835,11 @@ function actSpecial(state: GameState, actor: Player, targetId: string, now: numb
 
 function actExecute(state: GameState, actor: Player, targetId: string, now: number) {
   requirePhase(state, "power_execute");
-  if (actor.id !== state.presidentId) throw new GameError("Kalebend'i yalnızca Reis uygular.");
+  if (actor.id !== state.presidentId) throw new GameError("Tutuklamayı yalnızca Konsey Başkanı uygular.");
   const target = getPlayer(state, targetId);
   if (!target.alive || target.id === actor.id) throw new GameError("Geçersiz hedef.");
   target.alive = false;
-  addLog(state, "death", `${actor.name}, ${target.name}'i kalebende gönderdi.`, now);
+  addLog(state, "death", `${actor.name}, ${accusative(target.name)} tutukladı.`, now);
   if (target.role === "hitler") {
     endGame(state, "liberal", "executed", now);
     return;
@@ -854,7 +862,7 @@ export function apply(
     case "ready": {
       requirePhase(state, "lobby");
       if (actor.id === state.hostId && !action.value) {
-        throw new GameError("Divan sahibi hazır olmadan duramaz.");
+        throw new GameError("Konsey sahibi hazır olmadan duramaz.");
       }
       actor.ready = action.value;
       break;
@@ -961,7 +969,7 @@ export function apply(
         p.ready = p.isBot || p.id === state.hostId;
         p.role = "liberal";
       });
-      addSystemChat(state, "Yeni divan kuruldu. Hazır olanlar bekleniyor.", now);
+      addSystemChat(state, "Yeni Konsey kuruldu. Hazır olanlar bekleniyor.", now);
       break;
     }
     default: {
@@ -991,7 +999,7 @@ export function tick(prev: GameState, now = Date.now()): GameState | null {
       }
       const target = pickOne(candidates, state);
       const president = getPlayer(state, state.presidentId!);
-      addLog(state, "system", "Süre doldu; Reis otomatik aday gösterdi.", now);
+      addLog(state, "system", "Süre doldu; Konsey Başkanı otomatik aday gösterdi.", now);
       actNominate(state, president, target.id, now);
       break;
     }
@@ -1009,7 +1017,7 @@ export function tick(prev: GameState, now = Date.now()): GameState | null {
       if (!hand) break;
       const president = getPlayer(state, state.presidentId!);
       const index = Math.floor(nextRand(state) * hand.length);
-      addLog(state, "system", "Süre doldu; Reis otomatik ferman eledi.", now);
+      addLog(state, "system", "Süre doldu; Konsey Başkanı otomatik karar eledi.", now);
       actDiscard(state, president, index, now);
       break;
     }
@@ -1018,13 +1026,13 @@ export function tick(prev: GameState, now = Date.now()): GameState | null {
       if (!hand) break;
       const chancellor = getPlayer(state, state.chancellorId!);
       const index = Math.floor(nextRand(state) * hand.length);
-      addLog(state, "system", "Süre doldu; Vezir otomatik ferman seçti.", now);
+      addLog(state, "system", "Süre doldu; Savaş Bakanı otomatik karar seçti.", now);
       actEnact(state, chancellor, index, now);
       break;
     }
     case "veto_response": {
       const president = getPlayer(state, state.presidentId!);
-      addLog(state, "system", "Süre doldu; Reis vetoyu reddetti.", now);
+      addLog(state, "system", "Süre doldu; Konsey Başkanı vetoyu reddetti.", now);
       actVetoResponse(state, president, false, now);
       break;
     }
@@ -1036,7 +1044,7 @@ export function tick(prev: GameState, now = Date.now()): GameState | null {
         break;
       }
       const target = pickOne(targets, state);
-      addLog(state, "system", "Süre doldu; Reis otomatik teftiş yaptı.", now);
+      addLog(state, "system", "Süre doldu; Konsey Başkanı otomatik soruşturma yaptı.", now);
       actInvestigate(state, president, target.id, now);
       break;
     }
@@ -1054,7 +1062,7 @@ export function tick(prev: GameState, now = Date.now()): GameState | null {
         break;
       }
       const target = pickOne(targets, state);
-      addLog(state, "system", "Süre doldu; Reis otomatik seçim yaptı.", now);
+      addLog(state, "system", "Süre doldu; Konsey Başkanı otomatik özel seçim yaptı.", now);
       actSpecial(state, president, target.id, now);
       break;
     }
@@ -1066,7 +1074,7 @@ export function tick(prev: GameState, now = Date.now()): GameState | null {
         break;
       }
       const target = pickOne(targets, state);
-      addLog(state, "system", "Süre doldu; Reis otomatik kalebend uyguladı.", now);
+      addLog(state, "system", "Süre doldu; Konsey Başkanı otomatik tutuklama uyguladı.", now);
       actExecute(state, president, target.id, now);
       break;
     }

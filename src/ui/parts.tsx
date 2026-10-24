@@ -43,14 +43,16 @@ export function Brand({ compact = false }: { compact?: boolean }) {
     <div className="flex items-center gap-2.5">
       <div className="relative grid h-9 w-9 shrink-0 place-items-center rounded-full border border-gold/60 bg-wine/80 shadow-gold">
         <span className="font-display text-[13px] font-bold tracking-tight text-gold-2">
-          GP
+          SK
         </span>
       </div>
       <div className="leading-tight">
-        <p className="font-display text-base font-bold text-parchment">Gizli Padişah</p>
+        <p className="whitespace-nowrap font-display text-sm font-bold text-parchment sm:text-base">
+          Savaş Konseyi
+        </p>
         {!compact && (
           <p className="text-[10px] uppercase tracking-[0.24em] text-gold/70">
-            Divan-ı Hümayun
+            Gizli rol oyunu
           </p>
         )}
       </div>
@@ -201,16 +203,16 @@ export function Badge({
 
 const POLICY_STYLES = {
   liberal: {
-    box: "border-liberal-2/60 bg-gradient-to-b from-liberal/90 to-[#1c3e30] text-parchment",
+    box: "border-liberal-2/60 bg-gradient-to-b from-liberal/90 to-[#17324d] text-parchment",
     label: "text-liberal-2",
     icon: Scale,
-    sub: "Divan'ın sesi",
+    sub: "Barışın sesi",
   },
   fascist: {
     box: "border-fascist-2/70 bg-gradient-to-b from-fascist/90 to-[#4a1119] text-parchment",
     label: "text-fascist-2",
     icon: ScrollText,
-    sub: "Saray'ın iradesi",
+    sub: "Saldırganların iradesi",
   },
 };
 
@@ -291,7 +293,7 @@ export function PolicyCard({
       <div className="absolute inset-1 rounded-lg border border-white/15" />
       <div className="relative z-10 w-full text-center">
         <p className="text-[8px] uppercase tracking-[0.22em] text-white/60">
-          Divan-ı Hümayun
+          Savaş Konseyi
         </p>
       </div>
       <div className="relative z-10 flex flex-col items-center gap-1.5">
@@ -493,10 +495,10 @@ const POWER_GLYPH: Record<Power, typeof Eye> = {
 };
 
 const POWER_SHORT: Record<Power, string> = {
-  investigate: "Teftiş",
-  special: "F.-ı Şahane",
+  investigate: "Soruşturma",
+  special: "Özel Seçim",
   peek: "İstihbarat",
-  execute: "Kalebend",
+  execute: "Tutuklama",
 };
 
 function DeckStack({
@@ -558,10 +560,10 @@ function PolicyTrack({
           </span>
           <div className="min-w-0">
             <p className="truncate text-[9px] font-semibold uppercase tracking-[0.2em] text-parchment-2">
-              {fascist ? "Saray Fermanları" : "Islahat Fermaları"}
+              {fascist ? "Savaş Kararları" : "Barış Kararları"}
             </p>
             <p className="truncate text-[9px] text-muted">
-              {fascist ? "6 Ferman Saray'ın zaferi" : "5 Islahat Divan'ın zaferi"}
+              {fascist ? "6 Savaş Kararı Saldırganların zaferi" : "5 Barış Kararı Barışçılların zaferi"}
             </p>
           </div>
         </div>
@@ -596,10 +598,10 @@ function PolicyTrack({
               key={slot}
               title={
                 final
-                  ? `${slot}. ${fascist ? "Ferman" : "Islahat"}: zafer`
+                  ? `${slot}. ${fascist ? "Savaş Kararı" : "Barış Kararı"}: zafer`
                   : power
-                    ? `${slot}. Ferman: ${POWER_LABEL[power]}`
-                    : `${slot}. ${fascist ? "Ferman" : "Islahat"}`
+                    ? `${slot}. Savaş Kararı: ${POWER_LABEL[power]}`
+                    : `${slot}. ${fascist ? "Savaş Kararı" : "Barış Kararı"}`
               }
               className={clsx(
                 "policy-slot",
@@ -611,7 +613,7 @@ function PolicyTrack({
                 <>
                   <Icon className="h-4 w-4 opacity-80" strokeWidth={1.5} />
                   <span className="text-[7px] font-semibold uppercase tracking-[0.12em] text-parchment/80">
-                    {fascist ? "Ferman" : "Islahat"}
+                    {fascist ? "Savaş" : "Barış"}
                   </span>
                 </>
               ) : (
@@ -643,16 +645,16 @@ function PolicyTrack({
 export function Board({ state }: { state: ClientState }) {
   const powers = state.board.powers;
   return (
-    <section className="policy-board" aria-label="Ferman ve Islahat tahtası">
+    <section className="policy-board" aria-label="Savaş ve Barış Kararları tahtası">
       <div className="policy-board-head">
         <div className="flex min-w-0 items-center gap-2.5">
           <span className="board-seal">
             <Landmark className="h-5 w-5" strokeWidth={1.4} />
           </span>
           <div className="min-w-0">
-            <p className="eyebrow">Divan Tahtası</p>
+            <p className="eyebrow">Karar Tahtası</p>
             <h2 className="font-display text-base font-bold leading-none sm:text-xl">
-              Ferman Dengesi
+              Karar Dengesi
             </h2>
           </div>
         </div>
@@ -700,7 +702,7 @@ export function Board({ state }: { state: ClientState }) {
           </div>
           {state.board.tracker >= 2 && (
             <span className="text-[9px] text-gold-2">
-              Bir sonraki düşüşte üst ferman açılır
+              Bir sonraki düşüşte üst karar açılır
             </span>
           )}
         </div>
@@ -710,7 +712,7 @@ export function Board({ state }: { state: ClientState }) {
               <Shield className="h-3 w-3" /> Veto açık
             </Badge>
           ) : (
-            <span className="text-[9px] text-muted/70">Veto 5. Ferman'da açılır</span>
+            <span className="text-[9px] text-muted/70">Veto: 5. Savaş Kararı</span>
           )}
         </div>
       </div>
@@ -754,13 +756,13 @@ export function PlayerCard({
         : "player-seat-badge-fascist";
 
   const roleLabel = !player.alive
-    ? "Kalebend"
+    ? "Tutuklu"
     : showRole && player.role
       ? ROLE_LABEL[player.role]
       : player.isPresident
-        ? "Reis"
+        ? "Konsey Başkanı"
         : player.isChancellor
-          ? "Vezir"
+          ? "Savaş Bakanı"
           : player.isNominee
             ? "Aday"
             : !player.connected
@@ -769,7 +771,7 @@ export function PlayerCard({
                 ? "Bot"
                 : isYou
                   ? "Sen"
-                  : "Divan";
+                  : "Üye";
 
   return (
     <button
@@ -798,12 +800,12 @@ export function PlayerCard({
           highlight={player.isPresident || player.isChancellor}
         />
         {player.isPresident && (
-          <span className="seat-flag seat-flag-president" title="Reis">
+          <span className="seat-flag seat-flag-president" title="Konsey Başkanı">
             <Crown className="h-2.5 w-2.5" />
           </span>
         )}
         {player.isChancellor && (
-          <span className="seat-flag seat-flag-chancellor" title="Vezir">
+          <span className="seat-flag seat-flag-chancellor" title="Savaş Bakanı">
             <Shield className="h-2.5 w-2.5" />
           </span>
         )}
@@ -879,22 +881,22 @@ const ROLE_STYLE: Record<
   { box: string; seal: string; icon: typeof Scale; text: string }
 > = {
   liberal: {
-    box: "border-liberal-2/60 bg-gradient-to-br from-[#1e4636] via-liberal to-[#17382b]",
+    box: "border-liberal-2/60 bg-gradient-to-br from-[#1e3c5c] via-liberal to-[#152c44]",
     seal: "text-liberal-2",
     icon: Scale,
-    text: "Divan'ı ayakta tut. Beş Islahat geçir ya da Padişah'ı kalebende gönder.",
+    text: "Konsey'i ayakta tut. Beş Barış Kararı geçir ya da Savaş Çığırtkanı'nı tutukla.",
   },
   fascist: {
     box: "border-fascist-2/60 bg-gradient-to-br from-[#5b151b] via-fascist to-[#3d0e13]",
     seal: "text-fascist-2",
     icon: ScrollText,
-    text: "Padişah'ı koru. Altı Ferman geçir ya da Padişah'ı Vezir yap.",
+    text: "Savaş Çığırtkanı'nı koru. Altı Savaş Kararı geçir ya da Savaş Çığırtkanı'nı Savaş Bakanı yap.",
   },
   hitler: {
     box: "border-gold/60 bg-gradient-to-br from-[#6d1c2a] via-wine to-[#2a0a10]",
     seal: "text-gold-2",
     icon: Crown,
-    text: "Gizli lider sensin. Üç Ferman'dan sonra Vezir seçilirsen Saray kazanır. Kalebend'den sakın.",
+    text: "Gizli lider sensin. Üç Savaş Kararı'ndan sonra Savaş Bakanı seçilirsen Saldırganlar kazanır. Tutuklanmaktan sakın.",
   },
 };
 
@@ -971,7 +973,7 @@ export function RoleCard({
         {role === "liberal" && (
           <div className="mt-4 flex items-center gap-2 text-xs text-white/70">
             <Users className="h-4 w-4" />
-            Yalnızsın ama çoğunluktasın. {name}, divanı koru.
+            Yalnızsın ama çoğunluktasın. {name}, Konsey'i koru.
           </div>
         )}
 
@@ -993,7 +995,7 @@ export function ChatPanel({
   selfId,
   disabled,
   className,
-  inputPlaceholder = "Divan'a bir şey söyle…",
+  inputPlaceholder = "Konsey'e bir şey söyle…",
 }: {
   messages: ChatEntry[];
   onSend: (text: string) => void;
@@ -1102,7 +1104,7 @@ export function LogPanel({ entries }: { entries: LogEntry[] }) {
   return (
     <div ref={listRef} className="h-full space-y-2 overflow-y-auto pr-1">
       {entries.length === 0 && (
-        <p className="py-6 text-center text-xs text-muted">Divan henüz konuşmadı.</p>
+        <p className="py-6 text-center text-xs text-muted">Konsey henüz konuşmadı.</p>
       )}
       {entries.map((entry) => (
         <div key={entry.id} className="flex gap-2 text-[11px] leading-relaxed">
@@ -1134,7 +1136,7 @@ export function LogPanel({ entries }: { entries: LogEntry[] }) {
 /* Bağlantı / yükleniyor                                               */
 /* ------------------------------------------------------------------ */
 
-export function LoadingScreen({ label = "Divan toplanıyor…" }: { label?: string }) {
+export function LoadingScreen({ label = "Konsey toplanıyor…" }: { label?: string }) {
   return (
     <div className="grid min-h-[60dvh] place-items-center">
       <div className="text-center">
@@ -1153,9 +1155,9 @@ export function StatusPill({
   isHost: boolean;
 }) {
   const map = {
-    connecting: { label: isHost ? "Divan açılıyor" : "Bağlanıyor", tone: "text-gold" },
-    online: { label: isHost ? "Divan açık" : "Bağlı", tone: "text-liberal-2" },
-    offline: { label: "Bağlantı aranıyor", tone: "text-gold" },
+    connecting: { label: isHost ? "Açılıyor" : "Bağlanıyor", tone: "text-gold" },
+    online: { label: isHost ? "Konsey açık" : "Bağlı", tone: "text-liberal-2" },
+    offline: { label: "Aranıyor", tone: "text-gold" },
     error: { label: "Bağlantı yok", tone: "text-fascist-2" },
     closed: { label: "Kapandı", tone: "text-muted" },
   }[status];
@@ -1167,7 +1169,7 @@ export function StatusPill({
           status === "online" ? "bg-liberal-2" : status === "error" ? "bg-fascist-2" : "bg-gold",
         )}
       />
-      <span className={map.tone}>{map.label}</span>
+      <span className={clsx("whitespace-nowrap", map.tone)}>{map.label}</span>
     </span>
   );
 }

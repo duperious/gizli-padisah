@@ -9,8 +9,8 @@ export interface BotMove {
 /**
  * Bot kararları deterministik bir karışımla verilir; böylece test edilebilir ve
  * aynı oda durumunda öngörülebilir kalır. Botlar yalnızca kendi rollerinin
- * bildiği bilgiyi kullanır: Islahatçı kimseyi tanımaz, Saraylılar Padişah'ı ve
- * birbirini tanır, 7+ oyunda Padişah yandaşlarını bilmez.
+ * bildiği bilgiyi kullanır: Barışçıl kimseyi tanımaz, Saldırganlar Savaş
+ * Çığırtkanı'nı ve birbirini tanır, 7+ oyunda Savaş Çığırtkanı yandaşlarını bilmez.
  */
 function hash(input: string): number {
   let value = 0x811c9dc5;

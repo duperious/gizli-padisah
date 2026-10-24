@@ -15,10 +15,10 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg", "apple-touch-icon.png"],
       manifest: {
-        name: "Gizli Padişah",
-        short_name: "Gizli Padişah",
+        name: "Savaş Konseyi",
+        short_name: "Savaş Konseyi",
         description:
-          "Divan-ı Hümayun'da geçen çevrim içi gizli rol oyunu. Islahatçılar mı, Saraylılar mı?",
+          "Gizli rollerle oynanan çevrim içi savaş konseyi oyunu. Barışçıllar mı, Saldırganlar mı?",
         lang: "tr",
         dir: "ltr",
         theme_color: "#17110d",

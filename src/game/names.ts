@@ -19,7 +19,7 @@ const ADJECTIVES = [
 
 const NOUNS = [
   "Kâtip",
-  "Vezir",
+  "Bakan",
   "Derya",
   "Lale",
   "Simurg",
@@ -27,7 +27,7 @@ const NOUNS = [
   "Tuğrul",
   "Zümrüt",
   "Kılıç",
-  "Ferman",
+  "Karar",
   "Baykuş",
   "Yıldız",
   "Kahve",
@@ -46,14 +46,14 @@ export function randomName(): string {
 
 /** Botların isimleri; insan oyuncularla çakışırsa motor sonuna sayı ekler. */
 export const BOT_NAMES = [
-  "Gölge Kâtip",
-  "Kurnaz Lala",
+  "Gölge Subay",
+  "Kurnaz Subay",
   "Demir Muhafız",
-  "Bilge Haseki",
+  "Bilge Elçi",
   "Poyraz Nişancı",
   "Gizli Elçi",
-  "Altın Kâtip",
-  "Gece Şairi",
-  "Zümrüt Vezir",
+  "Altın Subay",
+  "Gece Muhafızı",
+  "Zümrüt Bakan",
   "Sessiz Çavuş",
 ] as const;
