@@ -50,6 +50,7 @@ import {
   PlayerCard,
   PolicyCard,
   RoleCard,
+  StageOverlay,
   StatusPill,
 } from "./parts";
 import { RulesModal } from "./Rules";
@@ -76,7 +77,7 @@ export function Game({
   leave: () => void;
 }) {
   const [rulesOpen, setRulesOpen] = useState(false);
-  const [roleOpen, setRoleOpen] = useState(false);
+  const [roleOpen, setRoleOpen] = useState(() => Boolean(state.you.role));
   const [leaveOpen, setLeaveOpen] = useState(false);
   const [gameOverOpen, setGameOverOpen] = useState(true);
   const [vetoOpen, setVetoOpen] = useState(false);
@@ -84,6 +85,7 @@ export function Game({
   const [asideTab, setAsideTab] = useState<"chat" | "log">("log");
   const [target, setTarget] = useState<string | null>(null);
   const [cardIndex, setCardIndex] = useState<number | null>(null);
+  const [voteChoice, setVoteChoice] = useState<boolean | null>(null);
 
   const you = state.you;
   const remaining = useCountdown(state.phaseEndsAt, state.serverNow);
@@ -99,13 +101,21 @@ export function Game({
   }, []);
 
   useEffect(() => {
+    if (you.role) setRoleOpen(true);
+  }, [you.role]);
+
+  useEffect(() => {
     setTarget(null);
     setCardIndex(null);
+    setVoteChoice(null);
     setVetoOpen(false);
   }, [state.phase, state.round, state.nomineeId]);
 
   useEffect(() => {
-    if (state.phase === "ended") setGameOverOpen(true);
+    if (state.phase === "ended") {
+      setGameOverOpen(true);
+      setRoleOpen(false);
+    }
   }, [state.phase]);
 
   const targetMode: TargetKind | null =
@@ -125,6 +135,19 @@ export function Game({
       : targetMode
         ? alive.filter((player) => player.id !== you.id).map((player) => player.id)
         : [];
+
+  const stageActive =
+    state.phase !== "ended" &&
+    !roleOpen &&
+    (you.can.nominate ||
+      you.can.vote ||
+      you.can.discard ||
+      you.can.enact ||
+      you.can.vetoResponse ||
+      you.can.ack ||
+      you.can.investigate ||
+      you.can.special ||
+      you.can.execute);
 
   const act = (action: Action) => {
     if (typeof navigator !== "undefined" && "vibrate" in navigator) {
@@ -205,18 +228,60 @@ export function Game({
             </div>
             {you.can.vote ? (
               <>
-                <p className="mt-1 text-xs text-muted">
+                <p className="text-center text-xs text-muted">
                   Oyun açıktır. Çoğunluk Evet ise seçim geçer. Oy verdikten sonra
                   değiştiremezsin.
                 </p>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button variant="gold" onClick={() => act({ type: "vote", value: true })} className="py-3.5">
-                    <Check className="h-5 w-5" /> Evet
-                  </Button>
-                  <Button variant="danger" onClick={() => act({ type: "vote", value: false })} className="py-3.5">
-                    <X className="h-5 w-5" /> Hayır
-                  </Button>
+                <div className="vote-choice-grid">
+                  <button
+                    type="button"
+                    onClick={() => setVoteChoice(true)}
+                    aria-pressed={voteChoice === true}
+                    className={clsx(
+                      "vote-choice vote-choice-yes",
+                      voteChoice === true && "vote-choice-selected",
+                    )}
+                  >
+                    <span className="vote-choice-icon">
+                      <Check className="h-5 w-5" />
+                    </span>
+                    <span className="vote-choice-stamp">Evet</span>
+                    <span className="vote-choice-note">Seçimi destekle</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setVoteChoice(false)}
+                    aria-pressed={voteChoice === false}
+                    className={clsx(
+                      "vote-choice vote-choice-no",
+                      voteChoice === false && "vote-choice-selected",
+                    )}
+                    style={{ animationDelay: "70ms" }}
+                  >
+                    <span className="vote-choice-icon">
+                      <X className="h-5 w-5" />
+                    </span>
+                    <span className="vote-choice-stamp">Hayır</span>
+                    <span className="vote-choice-note">Seçimi reddet</span>
+                  </button>
                 </div>
+                <Button
+                  variant="gold"
+                  disabled={voteChoice === null}
+                  onClick={() => {
+                    if (voteChoice !== null) act({ type: "vote", value: voteChoice });
+                  }}
+                  className="w-full py-3 text-base"
+                >
+                  <Vote className="h-5 w-5" /> Oyumu Gönder
+                </Button>
+                <p className="text-center text-[10px] uppercase tracking-[0.18em] text-muted">
+                  {voteChoice === null
+                    ? "Önce bir karar seç"
+                    : voteChoice
+                      ? "Evet oyu hazır"
+                      : "Hayır oyu hazır"}
+                </p>
               </>
             ) : votedAlready ? (
               <div className="flex items-center gap-2 rounded-xl border border-liberal-2/30 bg-liberal/10 px-3 py-3 text-sm text-liberal-2">
@@ -264,15 +329,20 @@ export function Game({
             eyebrow={`Tur ${state.round}`}
             icon={<Vote className="h-4 w-4" />}
           >
-            <div className="grid grid-cols-2 gap-2">
-              <div className="rounded-xl border border-liberal-2/30 bg-liberal/10 px-3 py-2">
-                <p className="text-[10px] uppercase tracking-[0.2em] text-liberal-2">Evet</p>
-                <p className="font-display text-2xl font-bold">{yes}</p>
-              </div>
-              <div className="rounded-xl border border-fascist-2/30 bg-fascist/10 px-3 py-2">
-                <p className="text-[10px] uppercase tracking-[0.2em] text-fascist-2">Hayır</p>
-                <p className="font-display text-2xl font-bold">{no}</p>
-              </div>
+            <div
+              className={clsx(
+                "vote-result-banner",
+                yes > no ? "vote-result-banner-yes" : "vote-result-banner-no",
+              )}
+            >
+              <p className="vote-result-kicker">
+                {yes > no ? "Seçim geçti" : "Seçim düştü"}
+              </p>
+              <p className="vote-result-score">
+                <span>{yes}</span> Evet
+                <span className="vote-result-divider">·</span>
+                <span>{no}</span> Hayır
+              </p>
             </div>
             <div className="grid gap-1.5 sm:grid-cols-2">
               {alive.map((player) => {
@@ -323,12 +393,17 @@ export function Game({
                 </p>
                 <div className="flex flex-wrap justify-center gap-3 py-1">
                   {you.hand.map((policy, index) => (
-                    <PolicyCard
+                    <div
                       key={`${policy}-${index}`}
-                      policy={policy}
-                      selected={cardIndex === index}
-                      onClick={() => setCardIndex(index)}
-                    />
+                      className="animate-card-deal"
+                      style={{ animationDelay: `${index * 70}ms` }}
+                    >
+                      <PolicyCard
+                        policy={policy}
+                        selected={cardIndex === index}
+                        onClick={() => setCardIndex(index)}
+                      />
+                    </div>
                   ))}
                 </div>
                 <p className="text-center text-xs text-muted">
@@ -381,12 +456,17 @@ export function Game({
                 </p>
                 <div className="flex flex-wrap justify-center gap-4 py-1">
                   {you.hand.map((policy, index) => (
-                    <PolicyCard
+                    <div
                       key={`${policy}-${index}`}
-                      policy={policy}
-                      selected={cardIndex === index}
-                      onClick={() => setCardIndex(index)}
-                    />
+                      className="animate-card-deal"
+                      style={{ animationDelay: `${index * 80}ms` }}
+                    >
+                      <PolicyCard
+                        policy={policy}
+                        selected={cardIndex === index}
+                        onClick={() => setCardIndex(index)}
+                      />
+                    </div>
                   ))}
                 </div>
                 <p className="text-center text-xs text-muted">
@@ -787,11 +867,14 @@ export function Game({
 
             <Board state={state} />
 
-            <div className="table-seam" aria-hidden="true" />
-
-            <div key={`${state.phase}-${state.round}`} className="animate-rise">
-              {actionPanel()}
-            </div>
+            {!stageActive && state.phase !== "ended" && (
+              <>
+                <div className="table-seam" aria-hidden="true" />
+                <div key={`${state.phase}-${state.round}`} className="animate-rise">
+                  {actionPanel()}
+                </div>
+              </>
+            )}
           </section>
         </div>
 
@@ -862,19 +945,43 @@ export function Game({
         </button>
       </div>
 
+      <StageOverlay open={stageActive} label={PHASE_LABEL[state.phase]}>
+        <div
+          key={`${state.phase}-${state.round}-${state.nomineeId ?? ""}`}
+          className="animate-stage-content"
+        >
+          {actionPanel()}
+        </div>
+      </StageOverlay>
+
       <Modal
         open={roleOpen}
         onClose={() => setRoleOpen(false)}
         title="Rolün"
         eyebrow="Sadece sen gör"
+        centered
+        dismissible={false}
+        footer={
+          <Button variant="gold" className="w-full py-3" onClick={() => setRoleOpen(false)}>
+            <Check className="h-4 w-4" /> Anladım
+          </Button>
+        }
       >
         {you.role ? (
-          <RoleCard
-            role={you.role}
-            players={state.players}
-            teammates={you.teammates}
-            name={you.name}
-          />
+          <>
+            <div className="animate-role-reveal">
+              <RoleCard
+                role={you.role}
+                players={state.players}
+                teammates={you.teammates}
+                name={you.name}
+              />
+            </div>
+            <p className="mt-3 text-center text-[11px] text-muted">
+              Rolünü gördükten sonra <strong className="text-parchment-2">Anladım</strong>'a bas.
+              Kartını kimseyle paylaşma.
+            </p>
+          </>
         ) : (
           <p className="text-sm text-muted">Rolün henüz dağıtılmadı.</p>
         )}
@@ -1220,22 +1327,38 @@ function PlayerPicker({
     return <p className="text-xs text-muted">Uygun hedef yok.</p>;
   }
   return (
-    <div className="grid gap-1.5 sm:grid-cols-2">
-      {targets.map((player) => (
+    <div className="grid gap-2 sm:grid-cols-2">
+      {targets.map((player, index) => (
         <button
           key={player.id}
           type="button"
           onClick={() => onSelect(player.id)}
           className={clsx(
-            "flex items-center gap-2 rounded-lg border px-2.5 py-2 text-left text-xs transition",
-            selected === player.id
-              ? "border-gold bg-gold/15 text-parchment"
-              : "border-gold/15 bg-ink/40 text-parchment-2 hover:border-gold/45",
+            "target-choice animate-card-deal",
+            selected === player.id && "target-choice-selected",
           )}
+          style={{ animationDelay: `${index * 45}ms` }}
         >
-          <Avatar emoji={player.avatar} size="xs" />
-          <span className="min-w-0 flex-1 truncate font-semibold">{player.name}</span>
-          {selected === player.id && <Check className="h-4 w-4 shrink-0 text-gold" />}
+          <Avatar emoji={player.avatar} size="sm" />
+          <span className="min-w-0 flex-1">
+            <span className="target-choice-name">{player.name}</span>
+            <span className="target-choice-meta">
+              {player.isBot
+                ? "Bot"
+                : player.isPresident
+                  ? "Konsey Başkanı"
+                  : player.isChancellor
+                    ? "Savaş Bakanı"
+                    : "Konsey üyesi"}
+            </span>
+          </span>
+          {selected === player.id ? (
+            <span className="target-choice-check">
+              <Check className="h-3.5 w-3.5" />
+            </span>
+          ) : (
+            <span className="target-choice-mark" aria-hidden="true" />
+          )}
         </button>
       ))}
     </div>

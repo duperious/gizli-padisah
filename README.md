@@ -15,6 +15,10 @@ Saldırganlar kazanır.
 - Masa düzenli oyun ekranı: oyuncu koltukları, büyük Savaş/Barış Kararları
   tahtası, deste/atık göstergeleri ve Konsey Defteri paneli
 - 5–10 oyuncu için gizli rol dağıtımı (Barışçıl, Saldırgan, Savaş Çığırtkanı)
+- Oyun başında otomatik açılan merkezî rol kartı; aday gösterme, oylama ve
+  karar aşamaları için masa üzerinde merkezî aksiyon sahneleri
+- İki adımlı Evet/Hayır oylaması: önce büyük karar kartını seç, sonra oyunu
+  gönder; sonuçta oyuncu koltuklarında belirgin Evet/Hayır damgaları
 - Eksik kadroyu botlarla tamamlama: tek başına 4 botla oynayabilir veya hedef
   oyuncu sayısını 5–10 arasında seçebilirsin
 - 6 Barış Kararı / 11 Savaş Kararı'ndan oluşan deste
@@ -33,8 +37,10 @@ Saldırganlar kazanır.
    sahibi lobide **Botlar** bölümünden hedef kadroyu seçip eksikleri botlarla
    tamamlayabilir.
 3. En az 5 kişi (botlar dahil) hazır olduğunda oda sahibi **Konsey'i Aç**'a basar.
-4. Roller gizli dağıtılır. Kimse rol kartını göstermemelidir.
-5. Her turda Konsey Başkanı bir Savaş Bakanı adayı gösterir; Konsey Evet/Hayır oyu verir.
+4. Roller gizli dağıtılır. Oyun açılırken rol kartın merkezde belirir; kimse rol
+   kartını göstermemelidir.
+5. Her turda Konsey Başkanı bir Savaş Bakanı adayı gösterir; Konsey büyük
+   Evet/Hayır kartlarından birini seçip oyunu gönderir.
 6. Seçim geçerse Konsey Başkanı üç karardan birini eler, Savaş Bakanı kalan iki karardan birini
    yürürlüğe koyar.
 7. Barışçıllar 5 Barış Kararı geçirirse veya Savaş Çığırtkanı'nı tutuklarsa

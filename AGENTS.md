@@ -63,6 +63,10 @@ sunmak gerekir.
   başlamalıdır. İnsan kopma temizliği botları kapsamamalıdır.
 - Sohbet veya ilgisiz snapshot değişiklikleri bekleyen bot zamanlayıcısını
   sıfırlamamalıdır; zamanlayıcı anahtarı bu yüzden kullanılır.
+- Oyun içi zorunlu aksiyonlar `StageOverlay` ile merkezî sahnede gösterilir.
+  İzleyiciler masa altındaki karar panelini kullanmaya devam eder.
+- Rol açılışı istemci tarafındadır; oyun motorunu veya faz süresini durdurmaz.
+  Rol kartı kapandıktan sonra oyuncu mevcut faza devam eder.
 
 ## Bot davranışı
 

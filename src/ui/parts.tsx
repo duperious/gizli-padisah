@@ -331,6 +331,8 @@ export function Modal({
   children,
   wide,
   footer,
+  dismissible = true,
+  centered = false,
 }: {
   open: boolean;
   onClose: () => void;
@@ -339,55 +341,115 @@ export function Modal({
   children: ReactNode;
   wide?: boolean;
   footer?: ReactNode;
+  dismissible?: boolean;
+  centered?: boolean;
 }) {
   useEffect(() => {
     if (!open) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (dismissible && event.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = previous;
       window.removeEventListener("keydown", onKey);
     };
-  }, [open, onClose]);
+  }, [open, onClose, dismissible]);
 
   if (!open) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
-      <button
-        type="button"
-        aria-label="Kapat"
-        onClick={onClose}
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-      />
+    <div
+      className={clsx(
+        "fixed inset-0 z-50 flex justify-center",
+        centered ? "items-center p-3 sm:p-4" : "items-end p-0 sm:items-center sm:p-4",
+      )}
+    >
+      {dismissible ? (
+        <button
+          type="button"
+          aria-label="Kapat"
+          onClick={onClose}
+          className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        />
+      ) : (
+        <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" aria-hidden="true" />
+      )}
       <div
         role="dialog"
         aria-modal="true"
         className={clsx(
-          "panel animate-scale-in relative z-10 max-h-[92dvh] w-full overflow-y-auto rounded-b-none bg-ink-2 p-5 safe-bottom sm:rounded-2xl sm:p-6",
+          "panel animate-scale-in relative z-10 max-h-[92dvh] w-full overflow-y-auto bg-ink-2 p-5 sm:p-6",
+          centered ? "rounded-2xl" : "safe-bottom rounded-b-none sm:rounded-2xl",
           wide ? "sm:max-w-2xl" : "sm:max-w-md",
         )}
       >
-        <div className="mb-4 flex items-start justify-between gap-4">
-          <div>
-            {eyebrow && <p className="eyebrow mb-1">{eyebrow}</p>}
-            {title && <h2 className="title text-xl">{title}</h2>}
+        {(title || eyebrow || dismissible) && (
+          <div className="mb-4 flex items-start justify-between gap-4">
+            <div>
+              {eyebrow && <p className="eyebrow mb-1">{eyebrow}</p>}
+              {title && <h2 className="title text-xl">{title}</h2>}
+            </div>
+            {dismissible && (
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-lg border border-gold/20 p-1.5 text-muted transition hover:border-gold/50 hover:text-parchment"
+                aria-label="Kapat"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg border border-gold/20 p-1.5 text-muted transition hover:border-gold/50 hover:text-parchment"
-            aria-label="Kapat"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+        )}
         {children}
         {footer && <div className="mt-5">{footer}</div>}
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+/**
+ * The active turn is shown over the table as a centred stage, so every
+ * player sees the same voting / policy moment. It never closes by itself;
+ * the phase transition swaps the contents.
+ */
+export function StageOverlay({
+  open,
+  label,
+  children,
+}: {
+  open: boolean;
+  label: string;
+  children: ReactNode;
+}) {
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [open]);
+
+  if (!open) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-40 flex items-center justify-center p-2.5 sm:p-4">
+      <div
+        className="absolute inset-0 animate-fade bg-ink/65 backdrop-blur-[2px]"
+        aria-hidden="true"
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={label}
+        className="animate-stage-in relative z-10 max-h-[94dvh] w-full max-w-2xl overflow-y-auto overscroll-contain"
+      >
+        {children}
       </div>
     </div>,
     document.body,
@@ -823,43 +885,42 @@ export function PlayerCard({
       </span>
 
       <span className="player-seat-roles">
-        <span
-          className={clsx(
-            "player-seat-badge",
-            !player.alive
-              ? "player-seat-badge-fascist"
-              : showRole && player.role
-                ? roleTone
-                : player.isPresident
-                  ? "player-seat-badge-gold"
-                  : player.isChancellor
-                    ? "player-seat-badge-liberal"
-                    : player.isNominee
-                      ? "player-seat-badge-muted"
-                      : !player.connected
-                        ? "player-seat-badge-fascist"
-                        : "player-seat-badge-muted",
-          )}
-        >
-          {roleLabel}
-        </span>
+        {revealedVote != null ? (
+          <span
+            className={clsx(
+              "player-seat-vote-stamp",
+              revealedVote ? "player-seat-vote-stamp-yes" : "player-seat-vote-stamp-no",
+            )}
+          >
+            {revealedVote ? "Evet" : "Hayır"}
+          </span>
+        ) : (
+          <span
+            className={clsx(
+              "player-seat-badge",
+              !player.alive
+                ? "player-seat-badge-fascist"
+                : showRole && player.role
+                  ? roleTone
+                  : player.isPresident
+                    ? "player-seat-badge-gold"
+                    : player.isChancellor
+                      ? "player-seat-badge-liberal"
+                      : player.isNominee
+                        ? "player-seat-badge-muted"
+                        : !player.connected
+                          ? "player-seat-badge-fascist"
+                          : "player-seat-badge-muted",
+            )}
+          >
+            {roleLabel}
+          </span>
+        )}
       </span>
 
-      {voted && (
-        <span
-          className={clsx(
-            "player-seat-voted",
-            revealedVote === false && "player-seat-voted-no",
-          )}
-          title={
-            revealedVote == null ? "Oy verdi" : revealedVote ? "Evet" : "Hayır"
-          }
-        >
-          {revealedVote === false ? (
-            <X className="h-2.5 w-2.5" />
-          ) : (
-            <Check className="h-2.5 w-2.5" />
-          )}
+      {voted && revealedVote == null && (
+        <span className="player-seat-voted" title="Oy verdi">
+          <Check className="h-2.5 w-2.5" />
         </span>
       )}
 

@@ -612,6 +612,205 @@
     background-image: radial-gradient(120% 120% at 50% -30%, rgb(143 43 43 / 0.13), transparent 58%);
   }
 
+  /* Merkezî karar sahnesi -------------------------------------------- */
+
+  .vote-choice-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+
+  @media (min-width: 480px) {
+    .vote-choice-grid {
+      gap: 0.9rem;
+    }
+  }
+
+  .vote-choice {
+    @apply relative flex min-h-[8.5rem] cursor-pointer flex-col items-center justify-center gap-1.5 overflow-hidden rounded-2xl border px-3 py-4 text-center transition duration-200;
+    border-color: rgb(201 162 75 / 0.35);
+    color: #2a1c14;
+    background:
+      radial-gradient(120% 100% at 50% 0%, rgb(246 236 217 / 0.99), rgb(232 214 182 / 0.92));
+    box-shadow:
+      0 18px 40px -26px #000,
+      inset 0 0 0 1px rgb(255 255 255 / 0.35);
+    animation: card-deal 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .vote-choice::after {
+    content: "";
+    position: absolute;
+    inset: 0.35rem;
+    border-radius: 0.75rem;
+    border: 1px dashed currentColor;
+    opacity: 0.16;
+    pointer-events: none;
+  }
+
+  .vote-choice:hover {
+    transform: translateY(-3px) rotate(-0.4deg);
+    box-shadow: 0 24px 50px -26px #000;
+  }
+
+  .vote-choice:focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 3px;
+  }
+
+  .vote-choice-yes {
+    color: #244f78;
+  }
+
+  .vote-choice-no {
+    color: #7d2424;
+  }
+
+  .vote-choice-selected {
+    transform: translateY(-3px);
+    box-shadow:
+      0 0 0 3px rgb(201 162 75 / 0.65),
+      0 24px 52px -25px #000;
+  }
+
+  .vote-choice-yes.vote-choice-selected {
+    border-color: var(--color-liberal-2);
+  }
+
+  .vote-choice-no.vote-choice-selected {
+    border-color: var(--color-fascist-2);
+  }
+
+  .vote-choice-icon {
+    @apply grid h-8 w-8 place-items-center rounded-full border;
+    border-color: currentColor;
+    background: rgb(255 255 255 / 0.32);
+  }
+
+  .vote-choice-stamp {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 8vw, 3rem);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    transform: rotate(-3deg);
+  }
+
+  .vote-choice-selected .vote-choice-stamp {
+    animation: vote-stamp 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  }
+
+  .vote-choice-note {
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.17em;
+    text-transform: uppercase;
+    opacity: 0.68;
+  }
+
+  .vote-result-banner {
+    @apply relative overflow-hidden rounded-2xl border px-4 py-3 text-center;
+    animation: scale-in 0.3s ease both;
+  }
+
+  .vote-result-banner-yes {
+    border-color: rgb(91 143 199 / 0.48);
+    background: linear-gradient(160deg, rgb(47 93 138 / 0.42), rgb(18 32 50 / 0.44));
+  }
+
+  .vote-result-banner-no {
+    border-color: rgb(184 67 67 / 0.48);
+    background: linear-gradient(160deg, rgb(143 43 43 / 0.42), rgb(44 13 17 / 0.46));
+  }
+
+  .vote-result-kicker {
+    @apply font-display text-2xl font-bold leading-none;
+  }
+
+  .vote-result-score {
+    @apply mt-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-parchment-2;
+  }
+
+  .vote-result-score span:not(.vote-result-divider) {
+    @apply font-display text-xl font-bold text-parchment;
+    margin: 0 0.2rem;
+  }
+
+  .vote-result-divider {
+    margin: 0 0.45rem;
+    opacity: 0.4;
+  }
+
+  .target-choice {
+    @apply flex w-full cursor-pointer items-center gap-2.5 rounded-xl border px-2.5 py-2 text-left transition duration-200;
+    border-color: rgb(201 162 75 / 0.34);
+    color: #2a1c14;
+    background: linear-gradient(160deg, rgb(246 236 217 / 0.97), rgb(232 214 182 / 0.88));
+    box-shadow:
+      0 12px 28px -22px #000,
+      inset 0 0 0 1px rgb(255 255 255 / 0.3);
+    animation: card-deal 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .target-choice:hover {
+    transform: translateY(-2px);
+    border-color: rgb(201 162 75 / 0.85);
+    box-shadow: 0 18px 34px -22px #000;
+  }
+
+  .target-choice:focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 2px;
+  }
+
+  .target-choice-selected {
+    border-color: var(--color-gold);
+    box-shadow:
+      0 0 0 2px rgb(201 162 75 / 0.7),
+      0 18px 36px -22px #000;
+  }
+
+  .target-choice-name {
+    @apply block truncate font-display text-sm font-bold leading-tight;
+  }
+
+  .target-choice-meta {
+    @apply mt-0.5 block text-[8px] font-semibold uppercase tracking-[0.14em];
+    opacity: 0.58;
+  }
+
+  .target-choice-check {
+    @apply grid h-5 w-5 shrink-0 place-items-center rounded-full;
+    color: var(--color-ink);
+    background: var(--color-gold);
+  }
+
+  .target-choice-mark {
+    @apply h-5 w-5 shrink-0 rounded-full border;
+    border-color: rgb(42 28 20 / 0.18);
+  }
+
+  .player-seat-vote-stamp {
+    @apply inline-flex w-full items-center justify-center rounded border px-1 py-0.5 font-display text-[9px] font-black uppercase leading-none tracking-[0.14em];
+    transform: rotate(-4deg);
+    animation: vote-stamp 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  }
+
+  .player-seat-vote-stamp-yes {
+    border-color: rgb(91 143 199 / 0.8);
+    color: #c9e2fb;
+    background: rgb(47 93 138 / 0.42);
+    box-shadow: inset 0 0 12px rgb(91 143 199 / 0.18);
+  }
+
+  .player-seat-vote-stamp-no {
+    border-color: rgb(184 67 67 / 0.8);
+    color: #ffc4c4;
+    background: rgb(143 43 43 / 0.42);
+    box-shadow: inset 0 0 12px rgb(184 67 67 / 0.18);
+  }
+
   .chronicle-panel {
     @apply rounded-2xl border border-gold/20 bg-ink-2/80 shadow-lift backdrop-blur-md;
   }
@@ -708,6 +907,81 @@
 
 .animate-pulse-gold {
   animation: pulse-gold 2.4s ease-in-out infinite;
+}
+
+@keyframes stage-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes stage-content {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes role-reveal {
+  from {
+    opacity: 0;
+    transform: perspective(900px) rotateY(-14deg) scale(0.95) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(900px) rotateY(0deg) scale(1) translateY(0);
+  }
+}
+
+@keyframes card-deal {
+  from {
+    opacity: 0;
+    transform: translateY(14px) rotate(-2deg) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+}
+
+@keyframes vote-stamp {
+  0% {
+    opacity: 0;
+    transform: scale(1.45) rotate(-9deg);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(0.97) rotate(-2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-4deg);
+  }
+}
+
+.animate-stage-in {
+  animation: stage-in 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.animate-stage-content {
+  animation: stage-content 0.28s ease both;
+}
+
+.animate-role-reveal {
+  animation: role-reveal 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.animate-card-deal {
+  animation: card-deal 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 @keyframes timer-pulse {

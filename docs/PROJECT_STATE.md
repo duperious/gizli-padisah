@@ -7,11 +7,10 @@ içinde** bu dosya güncellenir. Ayrıntılı çalışma kuralları `AGENTS.md` 
 ## Son güncelleme
 
 - **Tarih:** 24 Ekim 2026
-- **Son doğrulanan özellik sürümü:** `99a0375` — Savaş Konseyi yeniden teması
-- **Bu güncellemenin konusu:** Gizli Padişah kimliğinin Savaş Konseyi kimliğine
-  dönüştürülmesi, rollerin ve tüm ürün dilinin yeniden adlandırılması
-- **Durum:** Yerel doğrulama, GitHub Actions dağıtımı ve canlı duman testi
-  tamamlandı
+- **Son doğrulanan özellik sürümü:** yerel çalışma — merkezî rol ve oy sahneleri
+- **Bu güncellemenin konusu:** secret-hitler.online referanslı merkezî rol
+  açılışı, aksiyon modalları, iki adımlı Evet/Hayır oylaması ve oy damgaları
+- **Durum:** Yerel doğrulama tamamlandı; commit ve dağıtım bekliyor
 - **Canlı adres:** https://duperious.github.io/gizli-padisah/
 
 ## Ürün özeti
@@ -162,9 +161,13 @@ yeniden başlar.
 - Oda kodu ve tek tık davet linkiyle katılım
 - Masa düzenli oyun ekranı: oyuncu koltukları, büyük Savaş/Barış Kararları
   tahtası, deste/atık göstergeleri ve Konsey Defteri paneli
-- 5–10 oyuncu, gizli rol dağıtımı ve rol reveal ekranı
-- Botlarla eksik kadro tamamlama ve hedef oyuncu sayısı seçimi
+- 5–10 oyuncu, gizli rol dağıtımı ve oyun başında otomatik açılan merkezî
+  rol reveal modalı
 - Konsey Başkanı/Savaş Bakanı seçimi, oylama, seçim sayacı ve dönem sınırları
+- Aktif oyuncunun aksiyonları için merkezî sahneler: aday gösterme, Evet/Hayır
+  oylaması, karar eleme/yürürlüğe koyma, veto ve yetki hedefleri
+- İki adımlı oylama (büyük Evet/Hayır kartı seçimi + onay) ve seçim sonucunda
+  oyuncu koltuklarında Evet/Hayır damgaları
 - 6 Barış Kararı / 11 Savaş Kararı'ndan oluşan deste ve yeniden karıştırma
 - Soruşturma, İstihbarat, Özel Seçim ve Tutuklama
 - 5 Savaş Kararı sonrası veto
@@ -179,7 +182,20 @@ yeniden başlar.
 
 ## Doğrulama durumu
 
-Savaş Konseyi yeniden teması sonrası doğrulama:
+Merkezî rol ve oy sahnesi revizyonu:
+
+- `npx tsc --noEmit` — geçti
+- `npm test` — 61 test geçti
+- `npm run build` — geçti
+- `npm run docs:check` — geçti
+- Playwright duman testi — 1440×960 masaüstü ve 390×844 mobil; oyun başında
+  otomatik rol modalı, **Anladım** ile kapanma, merkezî aday gösterme sahnesi,
+  Evet/Hayır seçimi, **Oyumu Gönder** onayı, seçim sonucu damgaları ve yatay
+  taşma kontrolü
+- Rol kartı, oy kartları ve sonuç damgaları gerçek tarayıcıda görsel olarak
+  doğrulandı; 390 px genişlikte yatay taşma yok
+
+Önceki Savaş Konseyi yeniden teması doğrulaması:
 
 - `npx tsc --noEmit` — geçti
 - `npm test` — 61 test geçti
@@ -223,6 +239,8 @@ durdurur.
   için sayfayı yenilemek gerekebilir.
 - Oda durumu 6 saatten sonra yerel depodan temizlenir.
 - Uygulama içi yönlendirme hash tabanlıdır; GitHub Pages alt diziniyle uyumludur.
+- Rol açılışı istemci tarafındadır; oyun motoru bu sırada durmaz. Oyuncu rol
+  kartını kapatana kadar botlar veya diğer oyuncular fazı ilerletebilir.
 
 ## Önemli kararlar
 
@@ -253,10 +271,10 @@ durdurur.
 | `src/net/protocol.ts` | Host/istemci mesajları ve aksiyon allowlist'i |
 | `src/net/storage.ts` | Profil, token ve host durumu için `localStorage` |
 | `src/ui/Lobby.tsx` | Lobi, bot yönetimi ve hedef kadro seçimi |
-| `src/ui/Game.tsx` | Oyun ekranı, masa düzeni, oyuncu seçimi ve faz arayüzleri |
-| `src/ui/parts.tsx` | Ortak kartlar, oyuncu koltukları, Karar tahtası ve paneller |
+| `src/ui/Game.tsx` | Oyun ekranı, masa düzeni, merkezî aksiyon sahneleri, oylama ve faz arayüzleri |
+| `src/ui/parts.tsx` | Ortak kartlar, `StageOverlay`, oyuncu koltukları, Karar tahtası ve paneller |
 | `src/ui/Rules.tsx` | Kurallar ekranı |
-| `src/index.css` | Tema, masa, koltuk, tahta ve karar kartı stilleri |
+| `src/index.css` | Tema, masa, koltuk, tahta, oy kartı, damga ve animasyon stilleri |
 | `public/icon.svg` | `SK` marka rozetinin PWA ikon kaynağı |
 | `scripts/icons.mjs` | SVG kaynağından PNG ikonları üretir |
 | `tests/engine.test.ts` | Motor, gizli bilgi, zamanlayıcı ve bot lobisi testleri |
@@ -268,6 +286,30 @@ durdurur.
 | `docs/PROJECT_STATE.md` | Bu devir teslim belgesi |
 
 ## Son değişiklik günlüğü
+
+### 24 Ekim 2026 — Merkezî rol ve oy sahneleri
+
+- Oyun başladığında rol kartı otomatik olarak merkezî bir modalda açılıyor;
+  oyuncu **Anladım** ile kapatana kadar oyun arayüzünün odağında kalıyor.
+  Kapatıldıktan sonra rolü tekrar görmek için üst çubuktaki **Rolün** düğmesi
+  kullanılabiliyor.
+- Konsey Başkanı ve Savaş Bakanı'nın zorunlu aksiyonları masa üzerinde
+  `StageOverlay` ile merkezî sahneye taşındı: aday gösterme, iki adımlı oylama,
+  karar eleme/yürürlüğe koyma, veto ve yetki hedefleri. Aktif olmayan oyuncular
+  masa altındaki karar panelini ve sohbeti kullanmaya devam ediyor.
+- Oylama iki adıma ayrıldı: büyük parşömen **Evet/Hayır** kartlarından biri
+  seçiliyor, ardından **Oyumu Gönder** ile onaylanıyor. Seçim yapılmadan onay
+  düğmesi pasif kalıyor.
+- Seçim sonucu masa üzerinde büyük **Evet/Hayır** damgaları, sonuç bandı ve oy
+  dökümüyle gösteriliyor; oyuncu koltuklarındaki rol etiketi sonuç anında
+  damgaya dönüşüyor.
+- Rol açılışı, sahne geçişleri, hedef kartları ve oy damgaları için fade, scale,
+  card-deal ve stamp animasyonları; hedef ve oy kartlarına parşömen yüzeyi
+  eklendi.
+- Oyun motoru, bot kararları, ağ protokolü ve gizli rol projeksiyonu
+  değiştirilmedi; rol açılışı ve aksiyon sahneleri istemci tarafında kaldı.
+- Doğrulama: `tsc`, 61 test, üretim derlemesi ve doküman kontrolü; 1440×960 ve
+  390×844 Playwright duman testleri.
 
 ### 24 Ekim 2026 — Savaş Konseyi yeniden teması
 
