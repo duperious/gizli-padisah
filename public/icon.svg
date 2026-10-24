@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#2a1d17"/>
+      <stop offset="60%" stop-color="#17110d"/>
+      <stop offset="100%" stop-color="#0f0b08"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e8cf8d"/>
+      <stop offset="45%" stop-color="#c9a24b"/>
+      <stop offset="100%" stop-color="#8f6c2a"/>
+    </linearGradient>
+    <linearGradient id="wine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7d2130"/>
+      <stop offset="100%" stop-color="#4a111b"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" fill="url(#bg)"/>
+
+  <!-- ışık huzmeleri -->
+  <g opacity="0.16" stroke="#c9a24b" stroke-width="2">
+    <path d="M256 256 L256 12"/>
+    <path d="M256 256 L444 68"/>
+    <path d="M256 256 L500 256"/>
+    <path d="M256 256 L444 444"/>
+    <path d="M256 256 L256 500"/>
+    <path d="M256 256 L68 444"/>
+    <path d="M256 256 L12 256"/>
+    <path d="M256 256 L68 68"/>
+  </g>
+
+  <circle cx="256" cy="256" r="238" fill="none" stroke="url(#gold)" stroke-width="3"/>
+  <circle cx="256" cy="256" r="224" fill="none" stroke="#c9a24b" stroke-width="1.2" opacity="0.55"/>
+
+  <!-- madalyon -->
+  <path d="M256 78 L434 256 L256 434 L78 256 Z" fill="url(#wine)" stroke="url(#gold)" stroke-width="4"/>
+  <path d="M256 100 L412 256 L256 412 L100 256 Z" fill="none" stroke="#e8cf8d" stroke-width="1.4" opacity="0.6"/>
+
+  <text x="256" y="296" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="164" font-weight="700" fill="#f4ead7" letter-spacing="2">GP</text>
+
+  <!-- alt süs -->
+  <g fill="none" stroke="#e8cf8d" stroke-width="3" stroke-linecap="round" opacity="0.85">
+    <path d="M168 342 H236"/>
+    <path d="M276 342 H344"/>
+  </g>
+  <path d="M256 330 L268 342 L256 354 L244 342 Z" fill="#c9a24b"/>
+
+  <g fill="#c9a24b">
+    <circle cx="256" cy="452" r="5"/>
+    <circle cx="256" cy="60" r="5"/>
+    <circle cx="60" cy="256" r="5"/>
+    <circle cx="452" cy="256" r="5"/>
+  </g>
+</svg>
